@@ -1,0 +1,160 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="services-upside">
+      <div class="title-and-add-services d-flex justify-content-between align-items-center">
+        <div>
+          <h4>Xidmətlər</h4>
+        </div>
+        <div class="add-services">
+          <button><i class="fa-solid fa-plus"></i> Əlavə edin</button>
+        </div>
+      </div>
+    </div>
+    <div class="services-table-bg">
+      <div class="services-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Xidmətlər</th>
+              <th>Kateqoriya</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example row -->
+            <tr>
+              <td>Lazer</td>
+              <td>Lazer epilyasiya</td>
+            </tr>
+            <tr>
+              <td>Lazer</td>
+              <td>Lazer epilyasiya</td>
+            </tr>
+            <tr>
+              <td>Lazer</td>
+              <td>Lazer epilyasiya</td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination-services">
+        <div class="pagination-buttons">
+          <button>&laquo;</button>
+          <button class="active">1</button>
+          <button>2</button>
+          <button>3</button>
+          <button>4</button>
+          <button>5</button>
+          <button>&raquo;</button>
+        </div>
+      </div>
+    </div>
+    <div class="services-popup">
+      <div class="close-services-popup-btn">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <div class="services-popup-middle">
+        <div class="service-name form-group">
+          <label for="service-name">Xidmətin adı</label>
+          <br />
+          <input type="text" placeholder="Xidmətin adını qeyd edin" />
+        </div>
+        <div class="services-category">
+          <label for="category-button">Kateqoriya</label>
+          <br />
+          <button><i class="fa-solid fa-plus"></i>Kateqoriya seç</button>
+        </div>
+        <div class="selected-services-category">
+          <label class="selected-services-category-title" for="selected-services-category">Seçilmiş kateqoriyalar</label>
+          <br />
+          <div class="d-flex gap-3 flex-wrap">
+            <div class="selected-services-category-checkbox-and-name d-flex gap-2">
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              <div class="selected-services-category-name">Lazer</div>
+            </div>
+            <div class="selected-services-category-checkbox-and-name d-flex gap-2">
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              <div class="selected-services-category-name">Lazer</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="services-popup-btns d-flex justify-content-center gap-5">
+        <button class="services-popup-close">Çıxış</button>
+        <button class="services-popup-confirm">Təsdiq et</button>
+      </div>
+    </div>
+    <div class="services-category-popup">
+      <div class="add-services-category d-flex gap-2">
+        <input type="text" placeholder="Yeni kateqoriyanı daxil edin" />
+        <button><i class="fa-solid fa-plus"></i>Əlavə et</button>
+      </div>
+      <div class="services-category-popup-middle">
+        <div class="services-category-popup-table">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" />
+                    <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                  </label>
+                  Hamısı
+                </th>
+                <th>Kateqoriya</th>
+                <th>
+                  <i class="fa-solid fa-xmark"></i>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Example row -->
+              <tr>
+                <td>1</td>
+                <td>Lazer epilyasiya</td>
+                <td>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" />
+                    <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Lazer epilyasiya</td>
+                <td>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" />
+                    <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                  </label>
+                </td>
+              </tr>
+              <tr>
+                <td>1</td>
+                <td>Lazer epilyasiya</td>
+                <td>
+                  <label class="custom-checkbox">
+                    <input type="checkbox" />
+                    <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                  </label>
+                </td>
+              </tr>
+              <!-- Add more rows as needed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="services-category-popup-btns d-flex justify-content-center gap-5">
+        <button class="services-category-popup-close">Çıxış</button>
+        <button class="services-category-popup-confirm">Təsdiq et</button>
+      </div>
+    </div>
+  </section>
+{% endblock %}

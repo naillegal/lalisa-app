@@ -1,0 +1,212 @@
+#main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 50px 0px;
+  min-height: 100vh;
+  background: linear-gradient(to right, rgba(93, 220, 152, 1) 50%, #e3f8ee 50%);
+  position: relative;
+  overflow: hidden;
+  .clip-img {
+    width: 15%;
+    height: 150vh;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    object-fit: fill;
+  }
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: bottom;
+    z-index: 1;
+  }
+
+  #animation {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+
+    img {
+      max-width: 80%;
+      height: auto;
+      animation: slideIn 1s ease-in-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  }
+
+  #login-form {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+
+    .main-box {
+      max-width: 400px;
+      padding: 30px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+
+      img {
+        max-width: 150px;
+      }
+      .img-title {
+        text-align: center;
+        color: #666666b0;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        color: #333333;
+        margin-bottom: 10px;
+        text-align: left;
+        font-weight: bold;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: #666666;
+        margin-bottom: 10px;
+        text-align: left;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+
+        label {
+          font-size: 0.85rem;
+          padding: 15px 0px;
+          color: black;
+        }
+
+        input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #dcdcdc;
+          border-radius: 5px;
+          font-size: 0.9rem;
+
+          &:focus {
+            border-color: #62c78e;
+            outline: none;
+            box-shadow: 0 0 4px rgba(98, 199, 142, 0.5);
+          }
+        }
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+
+        .remember-button {
+          width: 44px;
+          height: 24px;
+          background-color: #c4c4c4;
+          border: 2px solid #999999;
+          border-radius: 12px;
+          position: relative;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #000000;
+            border-radius: 50%;
+            top: 50%;
+            left: 4px;
+            transform: translateY(-50%);
+            transition: all 0.3s ease;
+          }
+        }
+
+        .remember-button.active {
+          background-color: #62c78e;
+          border-color: #62c78e;
+
+          &::after {
+            left: calc(100% - 20px);
+          }
+        }
+
+        .remember-title {
+          font-size: 0.85rem;
+          color: #444444;
+          margin-left: 10px;
+          margin-bottom: 2px;
+        }
+      }
+
+      .submit {
+        width: 100%;
+        padding: 10px;
+        background: #62c78ec0;
+        color: black;
+        font-weight: 500;
+        border: none;
+        border-radius: 5px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: 0.2s ease-in-out;
+
+        &:hover {
+          background: #53b078;
+        }
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 991px) {
+  #main {
+    padding: 20px;
+    background: #e3f8ee;
+    #animation {
+      display: none;
+      margin-bottom: 20px;
+
+      img {
+        max-width: 100%;
+      }
+    }
+
+    #login-form .main-box {
+      max-width: 100%;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .clip-img {
+    display: none;
+  }
+}

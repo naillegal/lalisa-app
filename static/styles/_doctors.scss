@@ -1,0 +1,214 @@
+#slot {
+  .doctors-title {
+    padding: 10px;
+    h2 {
+      color: rgba(17, 24, 39, 1);
+      font-weight: 600;
+      font-size: 24px;
+    }
+  }
+  .doctors-table {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border: 1px solid #e0e0e0;
+    width: 99%;
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: rgba(75, 85, 99, 1);
+
+      thead {
+        background-color: rgba(232, 234, 237, 1);
+        th {
+          padding: 30px 20px;
+          text-align: left;
+          border-bottom: 1px solid #e0e0e0;
+          color: rgba(17, 24, 39, 1);
+          font-weight: 500;
+          &:last-child {
+            border-top-right-radius: 10px;
+          }
+          &:first-child {
+            border-top-left-radius: 10px;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          td {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+
+            .user-info {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+
+              img {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+              }
+            }
+            .status-btns {
+              .doctor-edit-btn {
+                background-color: rgba(255, 176, 22, 0.2);
+                border: 1px solid rgba(255, 176, 22, 0.2);
+                border-radius: 2px;
+                color: rgba(253, 181, 42, 1);
+                padding: 5px;
+                font-weight: 600;
+                margin-right: 5px;
+              }
+              .doctor-permission-btn {
+                background-color: rgba(5, 193, 104, 0.2);
+                border: 1px solid rgba(5, 193, 104, 0.2);
+                border-radius: 2px;
+                color: rgba(20, 202, 116, 1);
+                padding: 5px;
+                font-weight: 600;
+              }
+            }
+          }
+          .doctor-permission {
+            p {
+              color: rgba(84, 186, 79, 1);
+            }
+            i {
+              font-size: 50px;
+              margin-left: 12px;
+              color: rgba(255, 100, 101, 1);
+            }
+          }
+        }
+        tr:last-child td {
+          border-bottom: none;
+        }
+      }
+      .custom-checkbox {
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          display: none; // Gizlədilir
+        }
+
+        .checkmark {
+          width: 16px;
+          height: 16px;
+          border: 1px solid rgba(107, 114, 128, 1);
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #ffffff;
+          transition: all 0.3s ease;
+
+          i {
+            font-size: 14px;
+            color: transparent;
+            transition: color 0.3s ease;
+          }
+        }
+
+        input[type="checkbox"]:checked + .checkmark {
+          background-color: rgba(84, 186, 79, 1);
+          border-color: rgba(84, 186, 79, 1);
+
+          i {
+            color: #ffffff; 
+          }
+        }
+      }
+    }
+
+    .doctor-permission-popup {
+      display: none;
+      z-index: 300;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      width: 340px;
+      height: 385;
+      border-radius: 20px;
+      text-align: center;
+      .doctor-permission-popup-img {
+        .relative-img{
+          position: relative;
+          top: 0;
+          left: 0;
+          img{
+            width: 100%;
+          }
+        }
+        .absolute-img{
+          position: absolute;
+          top: 70%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+      }
+      .doctor-permission-popup-middle {
+        padding-top: 30px;
+        .doctor-permission-popup-middle-time,
+        .doctor-permission-popup-middle-date {
+          color: rgba(75, 85, 99, 1);
+          border: 1px solid rgba(84, 186, 79, 1);
+          border-radius: 5px;
+          width: 100%;
+          margin: auto;
+          padding: 10px;
+          input {
+            outline: none;
+            background-color: transparent;
+            border: 0px;
+            width: 100%;
+          }
+        }
+        h2{
+          padding: 10px 0px;
+        }
+        .user-mini-pic{
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        h6{
+          color: rgba(75, 85, 99, 1);
+          font-size: 20px;
+          font-weight: 400;
+          margin-top: 7px;
+        }
+      }
+      label{
+        font-weight: 600;
+        font-size: 18px;
+      }
+
+      .doctor-permission-popup-btns {
+        margin-top: 10px;
+        .doctor-permission-popup-close {
+          background-color: rgba(255, 255, 255, 1);
+          border: 1px solid rgba(220, 38, 38, 1);
+          border-radius: 8px;
+          padding: 8px 15px;
+          color: rgba(220, 38, 38, 1);
+        }
+        .doctor-permission-popup-confirm {
+          background-color: rgba(13, 110, 253, 1);
+          border: 1px solid rgba(13, 110, 253, 1);
+          border-radius: 8px;
+          padding: 8px 15px;
+          color: white;
+        }
+        padding-bottom: 20px;
+      }
+    }
+
+  }
+}

@@ -1,0 +1,421 @@
+#slot {
+  .services-upside {
+    padding: 20px 20px 0px 20px;
+    .title-and-add-services {
+      margin-bottom: 20px;
+
+      .add-services {
+        button {
+          background-color: rgba(84, 186, 79, 1);
+          color: #ffffff;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: 0.2s ease-in-out;
+
+          i {
+            margin-right: 5px;
+          }
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
+    }
+  }
+
+  .services-table-bg {
+    width: 99%;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+
+    .services-table {
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      border: 1px solid #e0e0e0;
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        color: rgba(75, 85, 99, 1);
+
+        thead {
+          background-color: rgba(245, 246, 250, 1);
+          border-bottom: 1px solid #e0e0e0;
+          th {
+            padding: 20px 50px;
+            text-align: left;
+            color: rgba(17, 24, 39, 1);
+            font-weight: 500;
+            &:last-child {
+              border-top-right-radius: 10px;
+              text-align: right;
+            }
+            &:first-child {
+              border-top-left-radius: 10px;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            td {
+              padding: 17px 50px;
+              border-bottom: 1px solid #e0e0e0;
+              position: relative;
+
+              &::after {
+                content: "";
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                width: 1px;
+                background-color: #e0e0e0;
+              }
+
+              &:last-child::after {
+                display: none;
+              }
+
+              &:last-child {
+                text-align: right;
+              }
+            }
+          }
+          tr:last-child td {
+            border-bottom: none;
+          }
+        }
+      }
+    }
+
+    .pagination-services {
+      display: flex;
+      justify-content: end;
+      align-items: center;
+      margin-top: 40px;
+
+      span {
+        color: rgba(75, 85, 99, 1);
+        font-size: 14px;
+      }
+
+      .pagination-buttons {
+        display: flex;
+        gap: 5px;
+
+        button {
+          padding: 5px 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          background-color: rgba(235, 236, 239, 1);
+          cursor: pointer;
+          transition: 0.2s ease-in-out;
+          font-weight: 500;
+          color: rgba(75, 85, 99, 1);
+
+          &:hover {
+            background-color: rgba(84, 186, 79, 1);
+            color: white;
+          }
+
+          &.active {
+            background-color: rgba(84, 186, 79, 1);
+            color: #ffffff;
+          }
+        }
+      }
+    }
+  }
+  .services-popup {
+    display: none;
+    z-index: 300;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    width: 340px;
+    height: 385;
+    border-radius: 20px;
+    text-align: center;
+    .close-services-popup-btn {
+      display: flex;
+      justify-content: flex-end;
+      cursor: pointer;
+      i {
+        color: rgba(127, 127, 127, 1);
+        font-size: 25px;
+      }
+    }
+    .services-popup-middle {
+      .service-name {
+        label {
+          color: rgba(17, 24, 39, 1);
+          font-weight: 600;
+          font-size: 16px;
+          margin-bottom: 10px;
+          float: left;
+        }
+        input {
+          padding: 10px 5px;
+          border-radius: 8px;
+          outline: none;
+          background-color: transparent;
+          border: 1px solid rgba(209, 213, 219, 1);
+          width: 100%;
+        }
+      }
+      .services-category {
+        padding: 30px 0px;
+        label {
+          color: rgba(17, 24, 39, 1);
+          font-weight: 600;
+          font-size: 16px;
+          margin-bottom: 10px;
+          float: left;
+        }
+        button {
+          background-color: rgba(84, 186, 79, 1);
+          color: white;
+          border: 1px solid rgba(84, 186, 79, 1);
+          padding: 12px 42px;
+          width: 100%;
+          border-radius: 8px;
+          outline: none;
+          i {
+            margin-right: 5px;
+          }
+        }
+      }
+      .selected-services-category {
+        .selected-services-category-title {
+          color: rgba(17, 24, 39, 1);
+          font-weight: 600;
+          font-size: 16px;
+          float: left;
+        }
+        .selected-services-category-checkbox-and-name {
+          padding: 10px 0px;
+          .custom-checkbox {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+
+            input[type="checkbox"] {
+              display: none;
+            }
+
+            .checkmark {
+              width: 16px;
+              height: 16px;
+              border: 1px solid rgba(107, 114, 128, 1);
+              border-radius: 4px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: #ffffff;
+              transition: all 0.3s ease;
+
+              i {
+                font-size: 14px;
+                color: transparent; // Default olaraq quş ikonunu gizlədir
+                transition: color 0.3s ease;
+              }
+            }
+
+            input[type="checkbox"]:checked + .checkmark {
+              background-color: rgba(84, 186, 79, 1);
+              border-color: rgba(84, 186, 79, 1);
+
+              i {
+                color: #ffffff;
+              }
+            }
+          }
+          .selected-services-category-name {
+            color: rgba(75, 85, 99, 1);
+            font-size: 14px;
+            margin-bottom: 2.5px;
+          }
+        }
+      }
+    }
+
+    .services-popup-btns {
+      margin-top: 10px;
+      .services-popup-close {
+        background-color: rgba(255, 255, 255, 1);
+        border: 1px solid rgba(220, 38, 38, 1);
+        border-radius: 8px;
+        padding: 8px 15px;
+        color: rgba(220, 38, 38, 1);
+      }
+      .services-popup-confirm {
+        background-color: rgba(13, 110, 253, 1);
+        border: 1px solid rgba(13, 110, 253, 1);
+        border-radius: 8px;
+        padding: 8px 15px;
+        color: white;
+      }
+    }
+  }
+  .services-category-popup {
+    display: none;
+    z-index: 400;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    width: 640px;
+    max-height: 600px;
+    border-radius: 20px;
+    .add-services-category {
+      padding-bottom: 20px;
+      input {
+        padding: 10px 5px;
+        border-radius: 8px;
+        outline: none;
+        background-color: transparent;
+        border: 1px solid rgba(209, 213, 219, 1);
+        width: 80%;
+      }
+      button {
+        background-color: rgba(244, 148, 30, 1);
+        border: 1px solid rgba(244, 148, 30, 1);
+        border-radius: 8px;
+        padding: 10px;
+        color: white;
+        i {
+          margin-right: 8px;
+        }
+      }
+    }
+    .close-services-category-popup-btn {
+      display: flex;
+      justify-content: flex-end;
+      cursor: pointer;
+      i {
+        color: rgba(127, 127, 127, 1);
+        font-size: 25px;
+      }
+    }
+    .services-category-popup-middle {
+      overflow: auto;
+      scrollbar-width: thin;
+      max-height: 400px;
+      .services-category-popup-table {
+        margin-bottom: 20px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        border: 1px solid #e0e0e0;
+        width: 99%;
+        table {
+          width: 100%;
+          border-collapse: collapse;
+          color: rgba(29, 28, 43, 1);
+
+          thead {
+            background-color: rgba(245, 246, 250, 1);
+            th {
+              padding: 20px;
+              border-bottom: 1px solid #e0e0e0;
+              color: rgba(17, 24, 39, 1);
+              font-weight: 500;
+              &:last-child {
+                border-top-right-radius: 10px;
+                text-align: right;
+              }
+              &:first-child {
+                border-top-left-radius: 10px;
+              }
+              .fa-xmark {
+                font-size: 25px;
+                cursor: pointer;
+              }
+            }
+          }
+
+          tbody {
+            tr {
+              td {
+                padding: 20px;
+                border-bottom: 1px solid #e0e0e0;
+                &:last-child {
+                  text-align: right;
+                }
+              }
+            }
+            tr:last-child td {
+              border-bottom: none;
+            }
+          }
+          .custom-checkbox {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+
+            input[type="checkbox"] {
+              display: none;
+            }
+
+            .checkmark {
+              width: 16px;
+              height: 16px;
+              border: 1px solid rgba(107, 114, 128, 1);
+              border-radius: 4px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              background-color: #ffffff;
+              transition: all 0.3s ease;
+
+              i {
+                font-size: 14px;
+                color: transparent; // Default olaraq quş ikonunu gizlədir
+                transition: color 0.3s ease;
+              }
+            }
+
+            input[type="checkbox"]:checked + .checkmark {
+              background-color: rgba(84, 186, 79, 1);
+              border-color: rgba(84, 186, 79, 1);
+
+              i {
+                color: #ffffff;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .services-category-popup-btns {
+      margin-top: 10px;
+      .services-category-popup-close {
+        background-color: rgba(255, 255, 255, 1);
+        border: 1px solid rgba(220, 38, 38, 1);
+        border-radius: 8px;
+        padding: 8px 15px;
+        color: rgba(220, 38, 38, 1);
+      }
+      .services-category-popup-confirm {
+        background-color: rgba(13, 110, 253, 1);
+        border: 1px solid rgba(13, 110, 253, 1);
+        border-radius: 8px;
+        padding: 8px 15px;
+        color: white;
+      }
+    }
+  }
+}

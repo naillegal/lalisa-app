@@ -1,0 +1,285 @@
+#slot {
+  .treatment-title {
+    padding: 10px;
+    h2 {
+      color: rgba(17, 24, 39, 1);
+      font-weight: 600;
+      font-size: 24px;
+    }
+  }
+
+  .treatment-process {
+    padding: 40px 0px;
+    .treatment-process-upside,
+    .treatment-process-underside {
+      align-items: start;
+      .element-2,
+      .element-3,
+      .element-4,
+      .element-5,
+      .element-6 {
+        visibility: hidden;
+      }
+      .create-treatment {
+        .treatment-box {
+          cursor: pointer;
+          width: 280px;
+          @media (min-width: 1700px) {
+            width: 400px;
+          }
+          padding: 5px 10px 10px 10px;
+          border: 1px solid rgba(84, 186, 79, 1);
+          border-radius: 8px;
+          background-color: white;
+          .treatment-content {
+            text-align: center;
+
+            .title-input {
+              pointer-events: none;
+              cursor: pointer;
+              padding: 5px 5px 10px 5px;
+              text-align: center;
+              border: none;
+              background-color: transparent;
+              outline: none;
+              color: rgba(84, 186, 79, 1);
+              font-weight: 500;
+              font-size: 20px;
+              overflow: hidden;
+              &::placeholder {
+                color: rgba(84, 186, 79, 1);
+                font-weight: 500;
+                font-size: 20px;
+              }
+            }
+            .description-input {
+              pointer-events: none;
+              cursor: pointer;
+              padding: 20px 5px;
+              text-align: center;
+              border: none;
+              background-color: transparent;
+              outline: none;
+              font-weight: 200;
+              color: rgba(0, 0, 0, 1);
+              width: 100%;
+              scrollbar-width: thin;
+              overflow: hidden;
+
+              &::placeholder {
+                font-weight: 200;
+                color: rgba(0, 0, 0, 1);
+                font-size: 32px;
+              }
+            }
+          }
+        }
+        .broken-box {
+          display: flex;
+          align-items: center;
+          .broken-line {
+            padding: 0px 8px;
+            i {
+              font-size: 10px;
+            }
+          }
+          .treatment-icon {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            i {
+              background-color: rgba(84, 186, 79, 1);
+              padding: 5px 6px;
+              border-radius: 50%;
+              color: white;
+            }
+          }
+        }
+        .last-element-broken {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          .last-element-broken-line {
+            padding-top: 15px;
+            writing-mode: vertical-rl;
+            text-align: center;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .last-element-arrow-icon {
+              font-size: 10px;
+              transform: rotate(90deg);
+              margin-right: 2px;
+            }
+          }
+
+          .last-element-treatment-icon {
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+
+            .last-element-treatment-icon-i {
+              background-color: rgba(84, 186, 79, 1);
+              padding: 5px 6px;
+              border-radius: 50%;
+              color: white;
+            }
+          }
+        }
+      }
+    }
+    .treatment-process-underside {
+      padding: 20px 0px;
+    }
+    .confirm-create-treatment {
+      padding: 30px 0px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      button {
+        background-color: rgba(13, 110, 253, 1);
+        border: 1px solid rgba(13, 110, 253, 1);
+        border-radius: 8px;
+        padding: 8px 15px;
+        color: white;
+      }
+    }
+    .created-treatments {
+      padding: 20px 0px;
+      .created-treatments-title {
+        padding-bottom: 40px;
+        padding-left: 10px;
+        h2 {
+          color: rgba(17, 24, 39, 1);
+          font-weight: 600;
+          font-size: 24px;
+        }
+      }
+    }
+    .treatment-content-popup {
+      display: none;
+      z-index: 300;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      .treatment-content-popup-box {
+        cursor: pointer;
+        width: 280px;
+        @media (min-width: 1700px) {
+          width: 400px;
+        }
+        padding: 5px 10px 10px 10px;
+        border: 1px solid rgba(84, 186, 79, 1);
+        border-radius: 8px;
+        background-color: white;
+        .treatment-content-popup-content {
+          text-align: center;
+
+          .treatment-content-popup-title-input {
+            cursor: pointer;
+            padding: 5px 5px 10px 5px;
+            text-align: center;
+            border: none;
+            background-color: transparent;
+            outline: none;
+            color: rgba(84, 186, 79, 1);
+            font-weight: 500;
+            font-size: 20px;
+            &::placeholder {
+              color: rgba(84, 186, 79, 1);
+              font-weight: 500;
+              font-size: 20px;
+            }
+          }
+          .treatment-content-popup-description-input {
+            cursor: pointer;
+            padding: 15px 5px;
+            text-align: center;
+            border: none;
+            background-color: transparent;
+            outline: none;
+            font-weight: 200;
+            color: rgba(0, 0, 0, 1);
+            width: 100%;
+            scrollbar-width: thin;
+
+            &::placeholder {
+              font-weight: 200;
+              color: rgba(0, 0, 0, 1);
+              font-size: 32px;
+            }
+          }
+        }
+      }
+      .treatment-content-popup-btns {
+        margin-top: 10px;
+        .treatment-content-popup-close {
+          background-color: rgba(255, 255, 255, 1);
+          border: 1px solid rgba(220, 38, 38, 1);
+          border-radius: 8px;
+          padding: 8px 15px;
+          color: rgba(220, 38, 38, 1);
+        }
+        .treatment-content-popup-confirm {
+          background-color: rgba(13, 110, 253, 1);
+          border: 1px solid rgba(13, 110, 253, 1);
+          border-radius: 8px;
+          padding: 8px 15px;
+          color: white;
+        }
+      }
+    }
+    .treatment-clock-popup {
+      display: none;
+      z-index: 300;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      width: 340px;
+      height: 385;
+      border-radius: 20px;
+      text-align: center;
+      .treatment-clock-popup-middle {
+        .treatment-clock-popup-middle-time {
+          color: rgba(75, 85, 99, 1);
+          border: 1px solid rgba(84, 186, 79, 1);
+          border-radius: 5px;
+          width: 30%;
+          margin: auto;
+          padding: 10px;
+          input {
+            outline: none;
+            background-color: transparent;
+            border: 0px;
+          }
+        }
+      }
+
+      .treatment-clock-popup-btns {
+        margin-top: 10px;
+        .treatment-clock-popup-close {
+          background-color: rgba(255, 255, 255, 1);
+          border: 1px solid rgba(220, 38, 38, 1);
+          border-radius: 8px;
+          padding: 8px 15px;
+          color: rgba(220, 38, 38, 1);
+        }
+        .treatment-clock-popup-confirm {
+          background-color: rgba(13, 110, 253, 1);
+          border: 1px solid rgba(13, 110, 253, 1);
+          border-radius: 8px;
+          padding: 8px 15px;
+          color: white;
+        }
+      }
+    }
+  }
+}

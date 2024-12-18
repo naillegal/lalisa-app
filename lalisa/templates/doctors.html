@@ -1,0 +1,155 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="doctors-title">
+      <h2>Həkimlər</h2>
+    </div>
+    <div class="doctors-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Ad</th>
+            <th>Xidmətlər</th>
+            <th>İş saatları</th>
+            <th class="doctor-permission-time">İcazə vaxtı</th>
+            <th style="padding-left: 60px;">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Example row -->
+          <tr data-row-id="1">
+            <td>01</td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <img src="images/user-mini-pic.png" alt="User" />
+                <span>Farid Mirzayev</span>
+              </div>
+            </td>
+            <td>
+              <p>Lazer epilyasiyası</p>
+              <p>Kosmetologiya</p>
+              <p>Arıqlama</p>
+            </td>
+            <td>
+              <div class="d-flex gap-3">
+                <div class="week-days">
+                  <p>B.e</p>
+                  <p>Ç.a</p>
+                  <p>Ç</p>
+                  <p>C.a</p>
+                  <p>C</p>
+                  <p>Ş</p>
+                  <p>B</p>
+                </div>
+                <div class="hours-range">
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                </div>
+              </div>
+            </td>
+            <td class="doctor-permission">
+              <p class="doctor-permission-date">20.05.2012</p>
+              <p class="doctor-permission-hour">20:30 AM</p>
+            </td>
+            <td>
+              <div class="status-btns">
+                <button class="doctor-edit-btn">Redaktə</button>
+                <button class="doctor-permission-btn">İcazə</button>
+              </div>
+            </td>
+          </tr>
+          <tr data-row-id="2">
+            <td>01</td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <img src="images/user-mini-pic.png" alt="User" />
+                <span>Farid Mirzayev</span>
+              </div>
+            </td>
+            <td>
+              <p>Lazer epilyasiyası</p>
+              <p>Kosmetologiya</p>
+              <p>Arıqlama</p>
+            </td>
+            <td>
+              <div class="d-flex gap-3">
+                <div class="week-days">
+                  <p>B.e</p>
+                  <p>Ç.a</p>
+                  <p>Ç</p>
+                  <p>C.a</p>
+                  <p>C</p>
+                  <p>Ş</p>
+                  <p>B</p>
+                </div>
+                <div class="hours-range">
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                  <p>10:00 - 12:00</p>
+                </div>
+              </div>
+            </td>
+            <td class="doctor-permission dp-none-second">
+              <i class="fa-solid fa-circle-xmark"></i>
+            </td>
+            <td>
+              <div class="status-btns">
+                <button class="doctor-edit-btn">Redaktə</button>
+                <button class="doctor-permission-btn">İcazə</button>
+              </div>
+            </td>
+          </tr>
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+
+      <div class="doctor-permission-popup">
+        <div class="doctor-permission-popup-img">
+          <div class="relative-img">
+            <img src="images/doctor-permission-upside.png" alt="" />
+            <div class="absolute-img">
+              <img src="images/doctor-permission-middle.png" alt="" />
+            </div>
+          </div>
+        </div>
+        <div class="doctor-permission-popup-middle">
+          <h2>İcazə</h2>
+          <div class="d-flex justify-content-center align-items-center gap-2">
+            <img class="user-mini-pic" src="images/user-mini-pic.png" alt="" />
+            <h6>Farid Mirzayev</h6>
+          </div>
+          <div class="d-flex align-items-center justify-content-center gap-2 mt-4">
+            <div>
+              <label for="date">Tarix</label>
+              <div class="doctor-permission-popup-middle-date">
+                <input type="date" />
+              </div>
+            </div>
+            <div>
+              <label for="time">Saat</label>
+              <div class="doctor-permission-popup-middle-time">
+                <input type="time" />
+              </div>
+            </div>
+          </div>
+          <hr />
+        </div>
+
+        <div class="doctor-permission-popup-btns d-flex justify-content-center gap-5">
+          <button class="doctor-permission-popup-close">Çıxış</button>
+          <button class="doctor-permission-popup-confirm">Təsdiq et</button>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

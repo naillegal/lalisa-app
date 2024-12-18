@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="slot-title">
+      <h4>Təqvim</h4>
+    </div>
+    <div class="d-flex gap-1 curr-and-cal">
+      <div class="event-container">
+        <div class="event-button-box">
+          <button><i class="fa-regular fa-square-plus"></i> Add Event</button>
+        </div>
+
+        <div class="events">
+        </div>
+      </div>
+      <div class="calendar-container">
+        <div class="header d-flex justify-content-between align-items-center">
+          <div class="present-month" id="presentMonth">Noyabr 2024</div>
+          <div class="view-options d-flex">
+            <div class="view-option" id="dayViewButton">Gün</div>
+            <div class="view-option" id="weekViewButton">Həftə</div>
+            <div class="view-option active" id="monthViewButton">Ay</div>
+          </div>
+          <div class="d-flex rightside gap-2">
+            <div class="arrows d-flex">
+              <div class="arrow prev-arrow">
+                <i class="fa-solid fa-chevron-left"></i>
+              </div>
+              <div class="arrow next-arrow">
+                <i class="fa-solid fa-chevron-right"></i>
+              </div>
+            </div>
+            <div class="today" id="todayButton">Bu Gün</div>
+          </div>
+        </div>
+        <div class="calendar" id="calendarTable"></div>
+        <div class="week-view d-none" id="weekView">
+          <table>
+            <thead>
+              <tr>
+                <th>Saat</th>
+                <th>B.E</th>
+                <th>Ç.A</th>
+                <th>Ç</th>
+                <th>C.A</th>
+                <th>C.</th>
+                <th>Ş.</th>
+                <th>B.</th>
+              </tr>
+            </thead>
+            <tbody id="weekViewBody"></tbody>
+          </table>
+        </div>
+        <div class="day-view d-none" id="dayView">
+          <table>
+            <thead>
+              <tr>
+                <th>Saat</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="dayViewBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="calendar-event-popup">
+        <div class="upside d-flex justify-content-between">
+          <div>
+            <h4>Add New Event</h4>
+          </div>
+          <div>
+            <i class="fa-solid fa-xmark"></i>
+          </div>
+        </div>
+        <hr />
+        <div class="calendar-event-popup-middle">
+          <div class="form-group d-flex gap-2">
+            <label for="event-title-input">Participants :</label>
+            <input name="participants" type="text" placeholder="Enter a participants" />
+          </div>
+          <div class="form-group d-flex justify-content-center">
+            <div>
+              <label for="event-start-date-input">Start Date</label>
+              <input name="start_date" type="date" />
+            </div>
+            <div>
+              <label for="event-end-date-input">End Date</label>
+              <input name="end_date"  type="date" />
+            </div>
+          </div>
+          <div class="form-group d-flex justify-content-center">
+            <div>
+              <label for="event-start-time-input">Start Time</label>
+              <input name="start_time" type="time" />
+            </div>
+            <div>
+              <label for="event-end-time-input">End Time</label>
+              <input name="end_time" type="time" />
+            </div>
+          </div>
+          <div>
+            <label for="theme-points">Theme</label>
+            <br />
+            <div class="d-flex justify-content-center gap-3">
+              <div>
+                <input type="checkbox" name="theme" value="green" />
+                <label for="personal"><div class="green-circle"></div>Personal</label>
+              </div>
+              <div>
+                <input type="checkbox" name="theme" value="blue" />
+                <label for="business"><div class="blue-circle"></div>Business</label>
+              </div>
+              <div>
+                <input type="checkbox" name="theme" value="orange" />
+                <label for="family"><div class="orange-circle"></div>Family</label>
+              </div>
+              <div>
+                <input type="checkbox" name="theme" value="purple"/>
+                <label for="important"><div class="purple-circle"></div>Important</label>
+              </div>
+              <div>
+                <input type="checkbox" name="theme" value="red"/>
+                <label for="holiday"><div class="red-circle"></div>Holiday</label>
+              </div>
+            </div>
+          </div>
+          <div class="description-box">
+            <label for="description">Description</label>
+            <br />
+            <textarea name="description" id="description" rows="3"></textarea>
+          </div>
+          <div class="calendar-event-popup-middle-action-btns d-flex justify-content-center gap-3">
+            <button class="treatment-content-popup-close">Cancel</button>
+            <button class="treatment-content-popup-confirm save-button">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

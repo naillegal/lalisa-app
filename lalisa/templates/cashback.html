@@ -1,0 +1,194 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="history-visible">
+      <div class="history-cashback-table-upper">
+        <div class="title">Cashback</div>
+        <div class="cashback-big-buttons d-flex align-items-center justify-content-around">
+          <button class="history-button history-active"><i class="fa-solid fa-clock-rotate-left"></i>Tarixcə</button>
+          <button class="users-button"><i class="fa-solid fa-user-check"></i>İstifadəçilər</button>
+          <button class="budget-button"><i class="fa-solid fa-scale-balanced"></i>Balans idarəsi</button>
+        </div>
+      </div>
+      <div class="history-middle-title">Tarixcə</div>
+      <div class="history-cashback-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Sıra</th>
+              <th>Ad</th>
+              <th>Tarix</th>
+              <th>Balans</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example row -->
+            <tr>
+              <td>01</td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>20.05.2012</td>
+              <td class="added-value">+3.00</td>
+            </tr>
+            <tr>
+              <td>01</td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>20.05.2012</td>
+              <td class="removed-value">-5.00</td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="users-visible">
+      <div class="users-cashback-table-upper">
+        <div class="title">Cashback</div>
+        <div class="cashback-big-buttons d-flex align-items-center justify-content-around">
+          <button class="history-button"><i class="fa-solid fa-clock-rotate-left"></i>Tarixcə</button>
+          <button class="users-button users-active"><i class="fa-solid fa-user-check"></i>İstifadəçilər</button>
+          <button class="budget-button"><i class="fa-solid fa-scale-balanced"></i>Balans idarəsi</button>
+        </div>
+      </div>
+      <div class="users-middle-title">
+        <div class="title">İstifadəçilər</div>
+        <div class="d-flex gap-3">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i><input type="search" placeholder="Search" />
+          </div>
+          <div>
+            <button>Təsdiq et</button>
+          </div>
+        </div>
+      </div>
+      <div class="users-cashback-table">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                Sıra
+              </th>
+              <th>Ad</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example row -->
+            <tr>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                01
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>
+                <button class="toggle-status"></button>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                01
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>
+                <button class="toggle-status"></button>
+              </td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="budget-visible">
+      <div class="budget-cashback-table-upper">
+        <div class="title">Cashback</div>
+        <div class="cashback-big-buttons d-flex align-items-center justify-content-around">
+          <button class="history-button"><i class="fa-solid fa-clock-rotate-left"></i>Tarixcə</button>
+          <button class="users-button"><i class="fa-solid fa-user-check"></i>İstifadəçilər</button>
+          <button class="budget-button budget-active"><i class="fa-solid fa-scale-balanced"></i>Balans idarəsi</button>
+        </div>
+      </div>
+      <div class="budget-middle-title">
+        <div class="title">Balans idarəsi</div>
+        <div class="d-flex gap-3">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i><input type="search" placeholder="Search" />
+          </div>
+          <div>
+            <button>Təsdiq et</button>
+          </div>
+        </div>
+      </div>
+      <div class="budget-cashback-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Sıra</th>
+              <th>Ad</th>
+              <th>Balans</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example row -->
+            <tr>
+              <td>01</td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td class="added-value">
+                +3.00 <i class="editicon fa-regular fa-pen-to-square"></i>
+              </td>
+            </tr>
+            <tr>
+              <td>01</td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td class="added-value">
+                +3.00 <i class="editicon fa-regular fa-pen-to-square"></i>
+              </td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+{% endblock %}

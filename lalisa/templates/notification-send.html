@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="upside-bg">
+      <div class="notification-send-relative">
+        <img src="images/notification-send-bg.png" alt="" />
+        <div>
+          <div class="notification-send-text-absolute">
+            <h1>İstifadəçiləri seçdiniz.</h1>
+            <p>Siz artıq bildiriş göndərmək üçün istifadəçiləri uğurla seçdiniz. İndi bu istifadəçilərə göndərmək istədiyiniz mesajı yaza bilərsiniz. Mesajınızın dəqiq, aydın və cəlbedici olmasına diqqət yetirin ki, qarşı tərəfdə daha yaxşı təsir yaratsın.</p>
+          </div>
+          <div class="notification-send-animation-absolute">
+            <img src="images/notification-send-animation.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="areainput">
+      <div class="areainput-title">
+        <h1>Bildiriş bölməsi</h1>
+      </div>
+      <div class="area-main">
+        <textarea placeholder="Bildir..."></textarea>
+      </div>
+      <div class="area-button">
+        <button>Göndər</button>
+      </div>
+    </div>
+  </section>
+{% endblock %}

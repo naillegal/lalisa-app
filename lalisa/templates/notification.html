@@ -1,0 +1,141 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="slot-title">
+      <h4>Bildiriş</h4>
+    </div>
+    <div class="notification-bg">
+      <div class="search-and-filter-notification d-flex justify-content-between align-items-center">
+        <div class="filter d-flex gap-3">
+          <div class="filter-select">
+            <label for="filter">Filter</label>
+            <br />
+            <select name="filter-selection" id="filter-selection">
+              <option value="filter">Cinsiyyət</option>
+            </select>
+          </div>
+          <div class="date-inputs d-flex gap-2">
+            <div>
+              <label for="start-date">Başlama tarixi</label>
+              <br />
+              <input type="date" />
+            </div>
+            <div>
+              <label for="end-date">Bitmə tarixi</label>
+              <br />
+              <input type="date" />
+            </div>
+          </div>
+        </div>
+        <div class="search-section d-flex align-items-center">
+          <div class="search-box d-flex align-items-center">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" placeholder="Search" />
+          </div>
+        </div>
+      </div>
+      <div class="notification-table">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                Sıra
+              </th>
+              <th>Ad</th>
+              <th>Cinsiyyət</th>
+              <th>Qoşulma tarixi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Example row -->
+            <tr>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                01
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>Kişi</td>
+              <td>02/12/2012</td>
+            </tr>
+            <tr>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                01
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>Kişi</td>
+              <td>02/12/2012</td>
+            </tr>
+            <tr>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                01
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>Kişi</td>
+              <td>02/12/2012</td>
+            </tr>
+            <tr>
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" />
+                  <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+                </label>
+                01
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  <img src="images/user-mini-pic.png" alt="User" />
+                  <span>Farid Mirzayev</span>
+                </div>
+              </td>
+              <td>Kişi</td>
+              <td>02/12/2012</td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pagination-notification">
+      <div class="pagination-buttons">
+        <button>&laquo;</button>
+        <button class="active">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>4</button>
+        <button>5</button>
+        <button>&raquo;</button>
+      </div>
+      <a href="notification-send.html"><button>Təsdiqlə</button></a>
+    </div>
+  </section>
+{% endblock %}

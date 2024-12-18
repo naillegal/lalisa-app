@@ -1,0 +1,162 @@
+{% extends 'layout.html' %}
+{% block main %}
+  <section id="slot">
+    <div class="discount-upside-bg">
+      <div class="discount-relative">
+        <img src="images/discount-bg.png" alt="" />
+        <div>
+          <div class="discount-absolute">
+            <div class="d-flex">
+              <div>
+                <h1>Yeni Endirim<br />Kodu Yarat</h1>
+              </div>
+              <div class="absolute-button">
+                <button>LALİSA</button>
+              </div>
+            </div>
+            <p>Müştəriləriniz üçün xüsusi endirimlər təklif etmək üçün yeni bir kod yaradın. Endirim kodunu, məbləğini və etibarlılıq tarixini təyin edin.</p>
+            <div class="submit-code d-flex gap-4">
+              <div>
+                <input type="text" placeholder="Endirim kodunu daxil et" />
+              </div>
+              <div class="code-buttons d-flex gap-2">
+                <button class="submit">Tətbiq et</button>
+                <button class="activity-time">Aktivlik müddəti</button>
+                <button class="infinity">Limitsiz</button>
+                <button class="with-time">1-30 gün</button>
+              </div>
+            </div>
+          </div>
+          <div class="discount-animation-absolute">
+            <img src="images/discount-animation.png" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="discount-code-table-upper">
+      <div class="title">Endirim Kodlarının İdarəsi</div>
+      <div class="date-filter d-flex gap-3">
+        <div class="date-inputs d-flex gap-2">
+          <div>
+            <label for="start-date">Başlama tarixi</label>
+            <br />
+            <input type="date" />
+          </div>
+          <div>
+            <label for="end-date">Bitmə tarixi</label>
+            <br />
+            <input type="date" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="discount-table">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              Sıra
+            </th>
+            <th>Endirim kodu</th>
+            <th>İstifadə</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Example row -->
+          <tr>
+            <td>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              01
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <span>NOYABR 2024</span>
+              </div>
+            </td>
+            <td>200</td>
+            <td>
+              <button class="toggle-status"></button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              01
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <span>NOYABR 2024</span>
+              </div>
+            </td>
+            <td>200</td>
+            <td>
+              <button class="toggle-status"></button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              01
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <span>NOYABR 2024</span>
+              </div>
+            </td>
+            <td>200</td>
+            <td>
+              <button class="toggle-status"></button>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark"><i class="fa-solid fa-check"></i></span>
+              </label>
+              01
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <span>NOYABR 2024</span>
+              </div>
+            </td>
+            <td>200</td>
+            <td>
+              <button class="toggle-status"></button>
+            </td>
+          </tr>
+
+          <!-- Add more rows as needed -->
+        </tbody>
+      </table>
+    </div>
+    <div class="activity-time-popup">
+      <div class="activity-time-popup-img">
+        <img src="images/discount-popup-img.png" alt="" />
+      </div>
+      <div class="activity-time-popup-middle">
+        <h5>Aktivlik müddəti</h5>
+      </div>
+
+      <div class="activity-time-popup-btns d-flex justify-content-center gap-5">
+        <button class="activity-time-popup-month">1-30 gün</button>
+        <button class="activity-time-popup-infinity">Limitsiz</button>
+      </div>
+    </div>
+  </section>
+{% endblock %}
