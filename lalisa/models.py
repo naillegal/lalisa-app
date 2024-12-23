@@ -42,7 +42,7 @@ class Event(models.Model):
 # services
 class ServicesCategory(models.Model):
     title = models.CharField(max_length=100, unique=True)
-    icon = models.ImageField(upload_to='category_icons/')
+    icon = models.ImageField(upload_to='category_icons/', blank=True, null=True)
 
     def __str__(self):
         return self.title
@@ -50,7 +50,7 @@ class ServicesCategory(models.Model):
 
 class Service(models.Model):
     title = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='service_images/')
+    image = models.ImageField(upload_to='service_images/', blank=True, null=True)
     category = models.ForeignKey(
         ServicesCategory, related_name='services', on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -61,7 +61,7 @@ class Service(models.Model):
 
 class Discount(models.Model):
     title = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='discount_images/')
+    image = models.ImageField(upload_to='discount_images/', blank=True, null=True)
     discount_percentage = models.PositiveIntegerField()
     end_date = models.DateField()
     active = models.BooleanField(default=True)
