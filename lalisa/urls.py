@@ -1,7 +1,11 @@
 from django.urls import path, include
 from . import views
 from rest_framework import routers
-from .views import EventViewSet, RegisterView, LoginView, UserListViewSet, ServicesCategoryViewSet, ServiceViewSet,DiscountViewSet
+from .views import (
+    EventViewSet, RegisterView, LoginView, UserListViewSet,
+    ServicesCategoryViewSet, ServiceViewSet, DiscountViewSet,
+    SpecialistViewSet, WorkingScheduleViewSet, BookingViewSet
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -10,9 +14,13 @@ from rest_framework_simplejwt.views import (
 router = routers.DefaultRouter()
 router.register(r"events", EventViewSet)
 router.register(r"users", UserListViewSet)
-router.register(r"categories", ServicesCategoryViewSet)  
+router.register(r"categories", ServicesCategoryViewSet)
 router.register(r"services", ServiceViewSet)
 router.register(r"discounts", DiscountViewSet)
+router.register(r"specialists", SpecialistViewSet)
+router.register(r"working-schedules", WorkingScheduleViewSet)
+router.register(r"bookings", BookingViewSet)
+
 
 urlpatterns = [
     path("api/", include(router.urls)),
