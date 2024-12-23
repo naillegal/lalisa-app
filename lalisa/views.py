@@ -23,7 +23,7 @@ class RegisterView(APIView):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.save()
-            refresh = RefreshToken.for_user(user)
+            # refresh = RefreshToken.for_user(user)
             return Response(
                 {
                     "user": {
@@ -34,8 +34,8 @@ class RegisterView(APIView):
                         "last_name": user.last_name,
                         "birth_date": user.birth_date,
                     },
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
+                    # "refresh": str(refresh),
+                    # "access": str(refresh.access_token),
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -49,7 +49,7 @@ class LoginView(APIView):
         serializer = LoginSerializer(data=request.data)
         if serializer.is_valid():
             user = serializer.validated_data["user"]
-            refresh = RefreshToken.for_user(user)
+            # refresh = RefreshToken.for_user(user)
             return Response(
                 {
                     "user": {
@@ -60,8 +60,8 @@ class LoginView(APIView):
                         "last_name": user.last_name,
                         "birth_date": user.birth_date,
                     },
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
+                    # "refresh": str(refresh),
+                    # "access": str(refresh.access_token),
                 },
                 status=status.HTTP_200_OK,
             )
