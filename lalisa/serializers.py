@@ -6,25 +6,38 @@ from .models import (
 from django.contrib.auth import authenticate
 from django.utils import timezone
 
-
-# login & register
-
-
+# Login & Register
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, style={
-                                     'input_type': 'password'})
-    password2 = serializers.CharField(write_only=True, required=True, style={
-                                      'input_type': 'password'}, label="Confirm Password")
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'}
+    )
+    password2 = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'},
+        label="Confirm Password"
+    )
 
     class Meta:
         model = CustomUser
-        fields = ('first_name', 'last_name', 'birth_date',
-                  'phone_number', 'username', 'email', 'password', 'password2')
+        fields = (
+            'first_name',
+            'last_name',
+            'birth_date',
+            'phone_number',
+            'username',
+            'email',
+            'password',
+            'password2'
+        )
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
             raise serializers.ValidationError(
-                {"password": "Şifrələr uyğun gəlmir."})
+                {"password": "Şifrələr uyğun gəlmir."}
+            )
         return attrs
 
     def create(self, validated_data):
@@ -35,9 +48,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(
-        required=True, help_text="İstifadəçi adı, e-poçt və ya telefon nömrəsi")
-    password = serializers.CharField(write_only=True, required=True, style={
-                                     'input_type': 'password'})
+        required=True,
+        help_text="İstifadəçi adı, e-poçt və ya telefon nömrəsi"
+    )
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        style={'input_type': 'password'}
+    )
 
     def validate(self, attrs):
         username = attrs.get('username')
@@ -55,7 +73,8 @@ class LoginSerializer(serializers.Serializer):
 
         if not user:
             raise serializers.ValidationError(
-                "Yanlış istifadəçi adı, e-poçt, telefon nömrəsi və ya şifrə.")
+                "Yanlış istifadəçi adı, e-poçt, telefon nömrəsi və ya şifrə."
+            )
 
         attrs['user'] = user
         return attrs
@@ -66,18 +85,44 @@ class UserListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ('id', 'username', 'password', 'email', 'phone_number',
-                  'first_name', 'last_name', 'birth_date', 'created_at')
+        fields = (
+            'id',
+            'username',
+            'password',
+            'email',
+            'phone_number',
+            'first_name',
+            'last_name',
+            'birth_date',
+            'created_at'
+        )
 
 
-# calendar
+# Calendar
 class EventSerializer(serializers.ModelSerializer):
+    start_date = serializers.DateField(
+        input_formats=["%Y-%m-%d"],
+        required=True
+    )
+    end_date = serializers.DateField(
+        input_formats=["%Y-%m-%d"],
+        required=True
+    )
+    start_time = serializers.TimeField(
+        input_formats=["%H:%M:%S", "%H:%M"],
+        required=True
+    )
+    end_time = serializers.TimeField(
+        input_formats=["%H:%M:%S", "%H:%M"],
+        required=True
+    )
+
     class Meta:
         model = Event
         fields = '__all__'
 
 
-# services Serializer
+# Services Serializer
 class ServicesCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ServicesCategory
@@ -109,8 +154,16 @@ class DiscountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Discount
-        fields = ('id', 'title', 'image', 'discount_percentage',
-                  'end_date', 'active', 'service', 'service_id')
+        fields = (
+            'id',
+            'title',
+            'image',
+            'discount_percentage',
+            'end_date',
+            'active',
+            'service',
+            'service_id'
+        )
 
 
 # Həkim rezervasiya
@@ -119,39 +172,69 @@ class SpecialistSimpleSerializer(serializers.ModelSerializer):
         model = Specialist
         fields = ('id', 'first_name', 'last_name', 'rating')
 
+
 class BookingSerializer(serializers.ModelSerializer):
-    specialist = SpecialistSimpleSerializer(read_only=True)  # Dairəvi asılılığa səbəb olmayacaq
+    specialist = SpecialistSimpleSerializer(read_only=True)
     specialist_id = serializers.PrimaryKeyRelatedField(
         queryset=Specialist.objects.all(),
         source='specialist',
         write_only=True
     )
+    date_time = serializers.DateTimeField(
+        input_formats=[
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%m-%d %H:%M",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S.%fZ",
+        ],
+        required=True
+    )
 
     class Meta:
         model = Booking
-        fields = ('id', 'specialist', 'specialist_id',
-                  'date_time', 'created_at')
+        fields = (
+            'id',
+            'specialist',
+            'specialist_id',
+            'date_time',
+            'created_at'
+        )
         read_only_fields = ('created_at',)
 
     def validate_date_time(self, value):
         if value < timezone.now():
             raise serializers.ValidationError(
-                "Booking date and time cannot be in the past.")
+                "Booking date and time cannot be in the past."
+            )
         return value
 
     def create(self, validated_data):
         return Booking.objects.create(**validated_data)
 
+
 class WorkingScheduleSerializer(serializers.ModelSerializer):
     days_of_week_display = serializers.SerializerMethodField()
+    start_time = serializers.TimeField(
+        input_formats=["%H:%M:%S", "%H:%M"],
+        required=True
+    )
+    end_time = serializers.TimeField(
+        input_formats=["%H:%M:%S", "%H:%M"],
+        required=True
+    )
 
     class Meta:
         model = WorkingSchedule
-        fields = ('id', 'days_of_week_display',
-                  'start_time', 'end_time')
+        fields = (
+            'id',
+            'days_of_week_display',
+            'start_time',
+            'end_time'
+        )
 
     def get_days_of_week_display(self, obj):
-        day_dict = dict(obj.DAYS_OF_WEEK)  
+        day_dict = dict(obj.DAYS_OF_WEEK)
         return [day_dict[day] for day in obj.days_of_week if day in day_dict]
 
 
