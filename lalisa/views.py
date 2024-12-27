@@ -81,20 +81,20 @@ class LoginView(APIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'username': openapi.Schema(type=openapi.TYPE_STRING, default='test'),
-                'password': openapi.Schema(type=openapi.TYPE_STRING, default='12345678t'),
+                'phone_number': openapi.Schema(type=openapi.TYPE_STRING, default='+994512345678'),
+                'password': openapi.Schema(type=openapi.TYPE_STRING, default='1234'),
             }
         ),
         responses={
             200: openapi.Response(
-                description="Uğurlu daxilolma",
+                description="Daxil olundu!",
                 examples={
                     "application/json": {
                         "user": {
                             "id": 1,
                             "username": "testuser",
                             "email": "test@example.com",
-                            "phone_number": "+994505555555",
+                            "phone_number": "+994512345678",
                             "first_name": "Test",
                             "last_name": "User",
                             "birth_date": "2000-01-01",
@@ -113,6 +113,7 @@ class LoginView(APIView):
             user_data = UserListSerializer(user).data
             return Response({"user": user_data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserListViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()

@@ -66,9 +66,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(
+    phone_number = serializers.CharField(
         required=True,
-        help_text="İstifadəçi adı, e-poçt və ya telefon nömrəsi"
+        help_text="Telefon nömrəsi"
     )
     password = serializers.CharField(
         write_only=True,
@@ -77,26 +77,23 @@ class LoginSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        username = attrs.get('username')
+        phone_number = attrs.get('phone_number')
         password = attrs.get('password')
-        user = None
 
-        if CustomUser.objects.filter(username=username).exists():
-            user = authenticate(username=username, password=password)
-        elif CustomUser.objects.filter(email=username).exists():
-            user_obj = CustomUser.objects.get(email=username)
-            user = authenticate(username=user_obj.username, password=password)
-        elif CustomUser.objects.filter(phone_number=username).exists():
-            user_obj = CustomUser.objects.get(phone_number=username)
-            user = authenticate(username=user_obj.username, password=password)
+        try:
+            user = CustomUser.objects.get(phone_number=phone_number)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError("Yanlış telefon nömrəsi və ya şifrə.")
 
-        if not user:
-            raise serializers.ValidationError(
-                "Yanlış istifadəçi adı, e-poçt, telefon nömrəsi və ya şifrə."
-            )
+        if not user.check_password(password):
+            raise serializers.ValidationError("Yanlış telefon nömrəsi və ya şifrə.")
+
+        if not user.is_active:
+            raise serializers.ValidationError("Hesabınız təsdiqlənməmişdir.")
 
         attrs['user'] = user
         return attrs
+
 
 
 class UserListSerializer(serializers.ModelSerializer):
