@@ -1,23 +1,46 @@
+# models.py
+
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from multiselectfield import MultiSelectField
-
-# login & register
-
+import random
+import string
 
 class CustomUser(AbstractUser):
+    username = models.CharField(
+        max_length=150, unique=True, blank=True, null=True)
     birth_date = models.DateField(null=True, blank=True)
     phone_number = models.CharField(max_length=20, unique=True)
     email = models.EmailField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.username
+        return self.username or self.email or self.phone_number
+
+
+class EmailVerification(models.Model):
+    """
+    İstifadəçi qeydiyyatından sonra göndərilən OTP kodunu saxlayır.
+    """
+    user = models.OneToOneField(
+        CustomUser, on_delete=models.CASCADE, related_name='email_verification'
+    )
+    code = models.CharField(max_length=6)
+    is_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"EmailVerification for {self.user.email}"
+
+    @staticmethod
+    def generate_code():
+        # 6 rəqəmli təsadüfi kod yaradır
+        return ''.join(random.choices(string.digits, k=6))
+
+# ------------------------ Qalan Kodlar ------------------------
 
 # calendar
-
-
 class Event(models.Model):
     THEME_CHOICES = [
         ('green', 'Personal'),
@@ -26,7 +49,6 @@ class Event(models.Model):
         ('purple', 'Important'),
         ('red', 'Holiday'),
     ]
-
     participants = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -42,15 +64,16 @@ class Event(models.Model):
 # services
 class ServicesCategory(models.Model):
     title = models.CharField(max_length=100, unique=True)
-    icon = models.ImageField(upload_to='category_icons/', blank=True, null=True)
+    icon = models.ImageField(
+        upload_to='category_icons/', blank=True, null=True)
 
     def __str__(self):
         return self.title
 
-
 class Service(models.Model):
     title = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='service_images/', blank=True, null=True)
+    image = models.ImageField(
+        upload_to='service_images/', blank=True, null=True)
     category = models.ForeignKey(
         ServicesCategory, related_name='services', on_delete=models.CASCADE)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -58,10 +81,10 @@ class Service(models.Model):
     def __str__(self):
         return self.title
 
-
 class Discount(models.Model):
     title = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='discount_images/', blank=True, null=True)
+    image = models.ImageField(
+        upload_to='discount_images/', blank=True, null=True)
     discount_percentage = models.PositiveIntegerField()
     end_date = models.DateField()
     active = models.BooleanField(default=True)
@@ -77,8 +100,6 @@ class Discount(models.Model):
         super().save(*args, **kwargs)
 
 # Həkim rezervasiya
-
-
 class Specialist(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -92,7 +113,6 @@ class Specialist(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
-
 
 class WorkingSchedule(models.Model):
     DAYS_OF_WEEK = [
@@ -108,13 +128,11 @@ class WorkingSchedule(models.Model):
         Specialist, related_name='working_schedules', on_delete=models.CASCADE
     )
     days_of_week = MultiSelectField(choices=DAYS_OF_WEEK, max_length=50)
-
     start_time = models.TimeField()
     end_time = models.TimeField()
 
     def __str__(self):
         return f"{self.specialist} - {self.days_of_week} ({self.start_time} - {self.end_time})"
-
 
 class Booking(models.Model):
     specialist = models.ForeignKey(

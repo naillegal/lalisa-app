@@ -11,7 +11,9 @@ from rest_framework import routers
 from .views import (
     EventViewSet, RegisterView, LoginView, UserListViewSet,
     ServicesCategoryViewSet, ServiceViewSet, DiscountViewSet,
-    SpecialistViewSet, WorkingScheduleViewSet, BookingViewSet
+    SpecialistViewSet, WorkingScheduleViewSet, BookingViewSet,
+    # Yeni
+    EmailVerificationView
 )
 
 router = routers.DefaultRouter()
@@ -37,12 +39,12 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-
     path("api/", include(router.urls)),
 
     path("api/register/", RegisterView.as_view(), name="register"),
     path("api/login/", LoginView.as_view(), name="login"),
+
+    path("api/verify-email/", EmailVerificationView.as_view(), name="verify_email"),
 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('swagger-json/', schema_view.without_ui(cache_timeout=0), name='schema-json'),

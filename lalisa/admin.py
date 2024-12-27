@@ -1,21 +1,19 @@
 from django.contrib import admin
 from .models import (
     Event, CustomUser, ServicesCategory, Service, Discount,
-    Specialist, WorkingSchedule, Booking
+    Specialist, WorkingSchedule, Booking,
+    EmailVerification
 )
 from django.contrib.auth.admin import UserAdmin
-
-# login & register
 
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ('username', 'email', 'first_name',
-                    'last_name', 'phone_number', 'birth_date')
-    search_fields = ('username', 'email', 'phone_number',
-                     'first_name', 'last_name')
-    list_filter = ('username', 'phone_number')
+    list_display = ('email', 'first_name', 'last_name',
+                    'phone_number', 'birth_date')
+    search_fields = ('email', 'phone_number', 'first_name', 'last_name')
+    list_filter = ('phone_number',)
     readonly_fields = ("created_at", "id")
     fieldsets = UserAdmin.fieldsets + (
         (None, {'fields': ('phone_number', 'birth_date')}),
@@ -23,6 +21,13 @@ class CustomUserAdmin(UserAdmin):
     add_fieldsets = UserAdmin.add_fieldsets + (
         (None, {'fields': ('phone_number', 'birth_date')}),
     )
+
+
+@admin.register(EmailVerification)
+class EmailVerificationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'code', 'is_verified', 'created_at')
+    search_fields = ('user__email', 'code')
+    list_filter = ('is_verified', 'created_at')
 
 # calendar
 
@@ -62,6 +67,8 @@ class DiscountAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 # Həkim rezervasiya
+
+
 class BookingInline(admin.TabularInline):
     model = Booking
     extra = 0
@@ -69,21 +76,22 @@ class BookingInline(admin.TabularInline):
     can_delete = False
     show_change_link = True
 
+
 @admin.register(Specialist)
 class SpecialistAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'rating')
     search_fields = ('first_name', 'last_name', 'services__title')
     list_filter = ('rating',)
     filter_horizontal = ('services',)
-    # inlines = [BookingInline] 
+    # inlines = [BookingInline]
 
 
 @admin.register(WorkingSchedule)
 class WorkingScheduleAdmin(admin.ModelAdmin):
     list_display = ('specialist', 'days_of_week', 'start_time', 'end_time')
-    search_fields = ('specialist__first_name', 'specialist__last_name', 'days_of_week')
+    search_fields = ('specialist__first_name',
+                     'specialist__last_name', 'days_of_week')
     list_filter = ('days_of_week',)
-
 
 
 @admin.register(Booking)

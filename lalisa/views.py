@@ -10,20 +10,19 @@ from .serializers import (
     EventSerializer, RegisterSerializer, LoginSerializer,
     UserListSerializer, ServicesCategorySerializer, ServiceSerializer,
     DiscountSerializer, SpecialistSerializer, WorkingScheduleSerializer,
-    BookingSerializer
+    BookingSerializer,
+    EmailVerificationSerializer
 )
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-
 class RegisterView(APIView):
-
     @swagger_auto_schema(
         operation_description="Qeydiyyat (Register) üçün endpoint",
         request_body=RegisterSerializer,
         responses={
             201: openapi.Response(
-                description="Uğurlu qeydiyyat",
+                description="Uğurlu qeydiyyat (OTP kodu email-ə göndəriləcək).",
                 examples={
                     "application/json": {
                         "user": {
@@ -50,9 +49,33 @@ class RegisterView(APIView):
             return Response({"user": user_data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class EmailVerificationView(APIView):
+    """
+    OTP kodunu təsdiqləmək üçün endpoint
+    """
+    @swagger_auto_schema(
+        operation_description="OTP kodunu təsdiqləyən endpoint",
+        request_body=EmailVerificationSerializer,
+        responses={
+            200: openapi.Response(
+                description="OTP kodu təsdiqləndi və istifadəçi aktivləşdirildi.",
+                examples={
+                    "application/json": {
+                        "message": "Email ünvanınız təsdiqləndi."
+                    }
+                },
+            ),
+            400: "Xəta baş verdi"
+        }
+    )
+    def post(self, request):
+        serializer = EmailVerificationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "Email ünvanınız təsdiqləndi."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-
     @swagger_auto_schema(
         operation_description="Daxil olma (Login) üçün endpoint",
         request_body=openapi.Schema(
@@ -91,17 +114,14 @@ class LoginView(APIView):
             return Response({"user": user_data}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
 class UserListViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserListSerializer
-    # permission_classes = [permissions.IsAdminUser] 
+    # permission_classes = [permissions.IsAdminUser]
 
 
-# Səhifə görünüşləri
 def login_view(request):
     return render(request, "index.html")
-
 
 def calendar_view(request):
     return render(request, "calendar.html")
@@ -148,7 +168,6 @@ class EventViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-
 # Services
 class ServicesCategoryViewSet(viewsets.ModelViewSet):
     queryset = ServicesCategory.objects.all()
@@ -173,7 +192,6 @@ class ServicesCategoryViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-
 
 class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
@@ -204,7 +222,6 @@ class ServiceViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-
 
 class DiscountViewSet(viewsets.ModelViewSet):
     queryset = Discount.objects.all()
@@ -269,7 +286,6 @@ class DiscountViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-
 # Specialist
 class SpecialistViewSet(viewsets.ModelViewSet):
     queryset = Specialist.objects.all()
@@ -331,7 +347,6 @@ class SpecialistViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-
 class WorkingScheduleViewSet(viewsets.ModelViewSet):
     queryset = WorkingSchedule.objects.all()
     serializer_class = WorkingScheduleSerializer
@@ -368,7 +383,6 @@ class WorkingScheduleViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-
 
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()

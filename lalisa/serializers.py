@@ -1,23 +1,23 @@
 from rest_framework import serializers
 from .models import (
     Event, CustomUser, Service, ServicesCategory, Discount,
-    Specialist, WorkingSchedule, Booking
+    Specialist, WorkingSchedule, Booking, 
+    EmailVerification
 )
 from django.contrib.auth import authenticate
 from django.utils import timezone
+from django.utils.text import slugify
+import string
+import random
 
 # Login & Register
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True,
         required=True,
         style={'input_type': 'password'}
-    )
-    password2 = serializers.CharField(
-        write_only=True,
-        required=True,
-        style={'input_type': 'password'},
-        label="Confirm Password"
     )
 
     class Meta:
@@ -30,18 +30,37 @@ class RegisterSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'password',
-            'password2'
         )
+        extra_kwargs = {
+            'username': {'required': False, 'allow_blank': True},
+            'email': {'required': True},
+            'phone_number': {'required': True},
+        }
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        if not attrs.get('email'):
+            raise serializers.ValidationError({"email": "Email is required."})
+        if not attrs.get('phone_number'):
             raise serializers.ValidationError(
-                {"password": "Şifrələr uyğun gəlmir."}
-            )
+                {"phone_number": "Phone number is required."})
         return attrs
 
+    def generate_unique_username(self, email, phone_number):
+        base_username = slugify(email.split('@')[0]) if email else slugify(phone_number)
+        username = base_username
+        counter = 1
+        while CustomUser.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        return username
+
     def create(self, validated_data):
-        validated_data.pop('password2')
+        username = validated_data.get('username')
+        if not username:
+            username = self.generate_unique_username(
+                validated_data.get('email'), validated_data.get('phone_number'))
+        validated_data['username'] = username
+
         user = CustomUser.objects.create_user(**validated_data)
         return user
 
@@ -97,6 +116,51 @@ class UserListSerializer(serializers.ModelSerializer):
             'created_at'
         )
 
+
+class EmailVerificationSerializer(serializers.Serializer):
+    """
+    OTP kodunu təsdiqləmək üçün istifadə olunan serializer.
+    """
+    email = serializers.EmailField(required=True)
+    code = serializers.CharField(max_length=6, required=True)
+
+    def validate(self, attrs):
+        email = attrs.get('email')
+        code = attrs.get('code')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError({"email": "Bu email ilə istifadəçi tapılmadı."})
+
+        try:
+            verification = EmailVerification.objects.get(user=user, code=code, is_verified=False)
+        except EmailVerification.DoesNotExist:
+            raise serializers.ValidationError({"code": "Yanlış və ya artıq istifadə olunmuş kod."})
+
+        # Kodun vaxt məhdudiyyəti kimi əlavə funksiya istəyirsinizsə:
+        time_diff = timezone.now() - verification.created_at
+        if time_diff.total_seconds() > 300:  # 5 dəqiqə 
+            raise serializers.ValidationError({"code": "OTP kodun vaxtı bitib."})
+
+        attrs['user'] = user
+        attrs['verification'] = verification
+        return attrs
+
+    def save(self, **kwargs):
+        """
+        Kod düzgün olduqda istifadəçinin is_active = True edilir.
+        """
+        user = self.validated_data['user']
+        verification = self.validated_data['verification']
+
+        verification.is_verified = True
+        verification.save()
+
+        user.is_active = True
+        user.save()
+
+        return user
 
 # Calendar
 class EventSerializer(serializers.ModelSerializer):
@@ -270,8 +334,10 @@ class SpecialistSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         services = validated_data.pop('services', [])
-        instance.first_name = validated_data.get('first_name', instance.first_name)
-        instance.last_name = validated_data.get('last_name', instance.last_name)
+        instance.first_name = validated_data.get(
+            'first_name', instance.first_name)
+        instance.last_name = validated_data.get(
+            'last_name', instance.last_name)
         instance.rating = validated_data.get('rating', instance.rating)
         instance.save()
         if services:
