@@ -1,0 +1,218 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+
+<section id="slot">
+  <div class="slot-title">
+    <h4>Lazer atış istifadəsi</h4>
+  </div>
+  <div class="laser-bg">
+    <div
+      class="search-and-filter-laser d-flex justify-content-between align-items-center"
+    >
+      <div class="filter d-flex gap-3">
+        <div class="date-inputs d-flex gap-2">
+          <div>
+            <label for="start-date">Başlama tarixi</label>
+            <br />
+            <input
+              type="date"
+              id="start-date"
+              value="{{ start_date_str|default_if_none:'' }}"  
+            />
+          </div>
+          <div>
+            <label for="end-date">Bitmə tarixi</label>
+            <br />
+            <input
+              type="date"
+              id="end-date"
+              value="{{ end_date_str|default_if_none:'' }}"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="button-section d-flex align-items-center">
+        <button class="laser-add">
+          <i class="fa-solid fa-plus"></i> Əlavə edin
+        </button>
+      </div>
+    </div>
+    <div class="laser-table">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+              </label>
+              Sıra
+            </th>
+            <th>Operator</th>
+            <th>Əvvəl</th>
+            <th>Sonra</th>
+            <th>İstifadə</th>
+            <th>Nahiyə</th>
+            <th>Tarix</th>
+            <th>Sil</th>
+          </tr>
+        </thead>
+        <tbody id="laser-usage-tbody">
+          {% for usage in laser_usages %}
+          <tr>
+            <td>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+              </label>
+              {{ forloop.counter }}
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                {% if usage.doctor.image %}
+                  <img src="{{ usage.doctor.image.url }}" alt="User" />
+                {% else %}
+                  <img src="{% static 'images/user-default.jpg' %}" alt="User" />
+                {% endif %}
+                <span>{{ usage.doctor.first_name }} {{ usage.doctor.last_name }}</span>
+              </div>
+            </td>
+            <td>{{ usage.before_shots }}</td>
+            <td>{{ usage.after_shots }}</td>
+            <td>{{ usage.usage }}</td>
+            <td>{{ usage.areas }}</td>
+            <td>{{ usage.created_at|date:"d.m.Y" }}</td>
+            <td>
+              <div data-laser-id="{{ usage.id }}">
+                <i class="user-delete-toggle fa-solid fa-trash"></i>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="pagination-laser">
+    <div class="pagination-buttons">
+  
+      {% if page_obj.has_previous %}
+        <button onclick="window.location='?page=1{% if start_date_str %}&start_date={{ start_date_str }}{% endif %}{% if end_date_str %}&end_date={{ end_date_str }}{% endif %}'">&laquo;</button>
+  
+        <button onclick="window.location='?page={{ page_obj.previous_page_number }}{% if start_date_str %}&start_date={{ start_date_str }}{% endif %}{% if end_date_str %}&end_date={{ end_date_str }}{% endif %}'">&lsaquo;</button>
+      {% else %}
+        <button disabled>&laquo;</button>
+        <button disabled>&lsaquo;</button>
+      {% endif %}
+  
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <button class="active">{{ num }}</button>
+        {% else %}
+          <button onclick="window.location='?page={{ num }}{% if start_date_str %}&start_date={{ start_date_str }}{% endif %}{% if end_date_str %}&end_date={{ end_date_str }}{% endif %}'">{{ num }}</button>
+        {% endif %}
+      {% endfor %}
+  
+      {% if page_obj.has_next %}
+        <button onclick="window.location='?page={{ page_obj.next_page_number }}{% if start_date_str %}&start_date={{ start_date_str }}{% endif %}{% if end_date_str %}&end_date={{ end_date_str }}{% endif %}'">&rsaquo;</button>
+  
+        <button onclick="window.location='?page={{ page_obj.paginator.num_pages }}{% if start_date_str %}&start_date={{ start_date_str }}{% endif %}{% if end_date_str %}&end_date={{ end_date_str }}{% endif %}'">&raquo;</button>
+      {% else %}
+        <button disabled>&rsaquo;</button>
+        <button disabled>&raquo;</button>
+      {% endif %}
+  
+    </div>
+  </div>
+  
+  
+  <div class="laser-delete-popup">
+    <div class="laser-delete-popup-img">
+      <i class="fa-regular fa-trash-can"></i>
+    </div>
+    <div class="laser-delete-popup-middle">
+      <h5>Bu lazer atışı istifadəsini silmək istədiyinizə əminsiniz?</h5>
+    </div>
+    <div class="laser-delete-popup-btns d-flex justify-content-center gap-5">
+      <button class="laser-delete-popup-close">Çıxış</button>
+      <button class="laser-delete-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+  <div class="add-laser-usage-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>Əlavə edin</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="add-laser-usage-popup-middle">
+      <div class="add-laser-usage-popup-custom-select-doctor">
+        <label>Həkim seçimi</label>
+        <div class="custom-dropdown">
+          <div class="dropdown-header">
+            <span id="selected-doctor-text">Həkimi seç</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="dropdown-menu">
+            <div class="dropdown-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="doctor-search-input" placeholder="Axtarış" />
+            </div>
+            <ul id="doctor-dropdown-list">
+              {% for doc in doctors %}
+              <li class="dropdown-item" data-doctor-id="{{ doc.id }}">
+                <img
+                  src="{% if doc.image %}{{ doc.image.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                  alt="Həkim" />
+                <span>{{ doc.first_name }} {{ doc.last_name }}</span>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div>
+          <label>Əvvəl atış sayı</label>
+          <input id="before-shots-input" type="text" placeholder="Əvvəl atış sayı daxil edin" />
+        </div>
+      </div>
+      <div class="form-group">
+        <div>
+          <label>Sonra atış sayı</label>
+          <input id="after-shots-input" type="text" placeholder="Sonra atış sayı daxil edin" />
+        </div>
+      </div>
+      <div class="form-group">
+        <div>
+          <label>Nahiyələr</label>
+          <input id="areas-input" type="text" placeholder="Nahiyələri daxil edin" />
+        </div>
+      </div>
+      <div
+        class="add-laser-usage-popup-middle-action-btns d-flex justify-content-center gap-3"
+      >
+        <button class="treatment-content-popup-close">Cancel</button>
+        <button class="treatment-content-popup-confirm" id="save-laser-usage-btn">Save</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'scripts/laser.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,320 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<meta name="csrf-token" content="{{ csrf_token }}">
+
+<section id="slot">
+  <div class="pages-upside">
+    <div class="title-pages d-flex justify-content-between align-items-center">
+      <div>
+        <h4>Səhifələr</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="banners">
+    <div class="banner discount-banner">
+      <div class="icon">
+        <i class="fa-solid fa-percent"></i>
+      </div>
+      <div class="content">
+        <h2>Endirim</h2>
+        <h2>Banneri</h2>
+      </div>
+      <div class="button">
+        <button class="open-discount-banner-detail">Daxil ol</button>
+      </div>
+      <img src="{% static 'images/pages-discount-banner.jpg' %}" alt="" />
+    </div>
+    <div class="banner main-banner">
+      <div class="icon">
+        <i class="fa-brands fa-elementor"></i>
+      </div>
+      <div class="content">
+        <h2>Əsas</h2>
+        <h2>Banner</h2>
+      </div>
+      <div class="button">
+        <button class="open-main-banner-detail">Daxil ol</button>
+      </div>
+      <img src="{% static 'images/pages-main-banner.jpg' %}" alt="" />
+    </div>
+  </div>
+
+  <div class="discount-banner-detail" style="display: none;">
+    <div class="discount-banner-detail-relative">
+      <img src="{% static 'images/pages-discount-banner.jpg' %}" alt="" />
+      <div class="discount-banner-detail-content-absolute">
+        <h1>
+          Yeni Endirim<br />Banneri Yarat
+          <span class="lalisa-button">LALİSA</span>
+        </h1>
+        <p>
+          Əsas səhifəyə maksimum 2 endirim banneri əlavə edə bilərsiniz.
+          Bannerlər müştərilərin diqqətini cəlb etmək üçün nəzərdə tutulub və
+          onların hər biri əsas səhifədə rotasiya ilə göstəriləcək.
+        </p>
+        <div class="form">
+          <div class="form-group">
+            <div>
+              <label>Əsas mətn</label>
+              <input
+                type="text"
+                id="discountText"
+                placeholder="Əsas mətn əlavə edin"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <div>
+              <label>Endirim faizi</label>
+              <input
+                type="text"
+                id="discountPercent"
+                placeholder="Endrim faizi daxil edin"
+              />
+            </div>
+          </div>
+          <div class="pages-dicount-detail-custom-select-service">
+            <label>Xidmət seç</label>
+            <div class="custom-dropdown" id="discountServiceDropdown">
+              <div class="dropdown-header">
+                <span id="discount-selected-option">Xidmətin adı</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-menu">
+                <div class="dropdown-search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" placeholder="Axtarış" />
+                </div>
+                <ul id="discount-dropdown-list">
+                  {% for srv in services %}
+                  <li class="dropdown-item" data-service-id="{{ srv.id }}">
+                    <span>{{ srv.name }}</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="upload-category-icon discount-upload-category-icon">
+            <div class="upload-box">
+              <div class="upload-icon" id="uploadIconDiscount">
+                <img src="{% static 'images/upload-category.png' %}" alt="Upload Icon" />
+              </div>
+              <div
+                class="uploaded-image"
+                id="uploadedImageDiscount"
+                style="display: none"
+              >
+                <img id="previewImageDiscount" alt="Uploaded Discount Image" />
+              </div>
+              <p>İcon ağ rəngdə və PNG formatında olmalıdır</p>
+            </div>
+            <input
+              type="file"
+              id="fileInputDiscount"
+              accept="image/png"
+              style="display: none"
+            />
+          </div>
+          <div class="confirm-button">
+            <button id="createDiscountBannerBtn">Təsdiq et</button>
+          </div>
+        </div>
+      </div>
+      <div class="discount-banner-detail-animation-absolute">
+        <img src="{% static 'images/pages-phone-animation.png' %}" alt="" />
+      </div>
+    </div>
+    <div class="discount-table-title"><h3>Endirim bannerləri</h3></div>
+    <div class="pages-table discount-pages-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Əsas mətn</th>
+            <th>Xidmət</th>
+            <th>Şəkil</th>
+            <th>Sil</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for dbanner in discount_banners %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ dbanner.text }}</td>
+            <td>{{ dbanner.service.name }}</td>
+            <td class="uploaded-banner">
+              <img src="{{ dbanner.image.url }}" alt="" />
+            </td>
+            <td>
+              <div>
+                <i
+                  class="pages-delete-toggle fa-solid fa-trash"
+                  data-id="{{ dbanner.id }}"
+                  data-type="discount"
+                ></i>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pages-delete-popup">
+      <div class="pages-delete-popup-img">
+        <i class="fa-regular fa-trash-can"></i>
+      </div>
+      <div class="pages-delete-popup-middle">
+        <h5>Bu endirim bannerini silmək istədiyinizə əminsiniz?</h5>
+      </div>
+      <div class="pages-delete-popup-btns d-flex justify-content-center gap-5">
+        <button class="pages-delete-popup-close">Çıxış</button>
+        <button class="pages-delete-popup-confirm">Təsdiq et</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="main-banner-detail" style="display: none;">
+    <div class="discount-banner-detail-relative">
+      <img src="{% static 'images/pages-main-banner-detail.png' %}" alt="" />
+      <div class="discount-banner-detail-content-absolute">
+        <h1>
+          Yeni Əsas<br />Banneri Yarat
+          <span class="lalisa-button">LALİSA</span>
+        </h1>
+        <p>
+          Əsas səhifəyə maksimum 3 ədəd banner əlavə edə bilərsiniz. Bu
+          bannerlər saytın ön səhifəsində yerləşəcək və istifadəçilərin
+          diqqətini cəlb etmək üçün nəzərdə tutulub. Əgər artıq 3 banner əlavə
+          etmisinizsə, yenisini əlavə etmək üçün mövcud bannerlərdən birini
+          silməlisiniz.
+        </p>
+        <div class="form">
+          <div class="form-group">
+            <div>
+              <label>Əsas mətn</label>
+              <input
+                type="text"
+                id="mainText"
+                placeholder="Əsas mətn əlavə edin"
+              />
+            </div>
+          </div>
+          <div class="pages-dicount-detail-custom-select-service">
+            <label>Xidmət seç</label>
+            <div class="custom-dropdown" id="mainServiceDropdown">
+              <div class="dropdown-header">
+                <span id="main-selected-option">Xidmətin adı</span>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-menu">
+                <div class="dropdown-search">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" placeholder="Axtarış" />
+                </div>
+                <ul id="main-dropdown-list">
+                  {% for srv in services %}
+                  <li class="dropdown-item" data-service-id="{{ srv.id }}">
+                    <span>{{ srv.name }}</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="upload-category-icon main-upload-category-icon">
+            <div class="upload-box">
+              <div class="upload-icon" id="uploadIconMain">
+                <img src="{% static 'images/upload-category.png' %}" alt="Upload Icon" />
+              </div>
+              <div
+                class="uploaded-image"
+                id="uploadedImageMain"
+                style="display: none"
+              >
+                <img id="previewImageMain" alt="Uploaded Main Image" />
+              </div>
+              <p>İcon ağ rəngdə və PNG formatında olmalıdır</p>
+            </div>
+            <input
+              type="file"
+              id="fileInputMain"
+              accept="image/png"
+              style="display: none"
+            />
+          </div>
+          <div class="confirm-button">
+            <button id="createMainBannerBtn">Təsdiq et</button>
+          </div>
+        </div>
+      </div>
+      <div class="discount-banner-detail-animation-absolute">
+        <img src="{% static 'images/pages-phone-animation.png' %}" alt="" />
+      </div>
+    </div>
+    <div class="main-table-title"><h3>Əsas bannerlər</h3></div>
+    <div class="pages-table main-pages-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Əsas mətn</th>
+            <th>Xidmət</th>
+            <th>Şəkil</th>
+            <th>Sil</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for mbanner in main_banners %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ mbanner.text }}</td>
+            <td>{{ mbanner.service.name }}</td>
+            <td class="uploaded-banner">
+              <img src="{{ mbanner.image.url }}" alt="" />
+            </td>
+            <td>
+              <div>
+                <i
+                  class="pages-delete-toggle fa-solid fa-trash"
+                  data-id="{{ mbanner.id }}"
+                  data-type="main"
+                ></i>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pages-delete-popup">
+      <div class="pages-delete-popup-img">
+        <i class="fa-regular fa-trash-can"></i>
+      </div>
+      <div class="pages-delete-popup-middle">
+        <h5>Bu əsas bannerini silmək istədiyinizə əminsiniz?</h5>
+      </div>
+      <div class="pages-delete-popup-btns d-flex justify-content-center gap-5">
+        <button class="pages-delete-popup-close">Çıxış</button>
+        <button class="pages-delete-popup-confirm">Təsdiq et</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'scripts/pages.js' %}"></script>
+<script src="{% static 'scripts/doctor.js' %}"></script>
+<script src="{% static 'scripts/cashback.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/discount-code.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

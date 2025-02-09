@@ -1,0 +1,209 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<section id="slot">
+  <div class="services-upside">
+    <div
+      class="title-and-add-services d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <h4>Xidmətlər</h4>
+      </div>
+      <div class="add-services">
+        <button class="add-category">
+          <i class="fa-solid fa-plus"></i>Kateqoriya əlavə et
+        </button>
+        <button class="add-service">
+          <i class="fa-solid fa-plus"></i>Xidmət əlavə et
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="categories">
+    <div class="container-fluid">
+      <div class="row row-gap-4">
+        {% for category in categories %}
+        <div class="col-lg-3 col-md-4 col-6">
+          <div class="categories-box" data-category-id="{{ category.id }}">
+            <div class="d-flex justify-content-end">
+              <i
+                class="fa-solid fa-xmark category-delete-toggle"
+                data-category-id="{{ category.id }}"
+              ></i>
+            </div>
+            <div class="d-flex justify-content-center">
+              <img
+                src="{% static 'images/category-icon.png' %}"
+                alt="{{ category.name }}"
+              />
+            </div>
+            <hr />
+            <div class="categories-box-content">
+              <h6>{{ category.name }}</h6>
+              <p>Xidmətlər</p>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+          <p>Kateqoriya tapılmadı.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Kateqoriya əlavə popup -->
+  <div class="category-popup">
+    <div class="close-category-popup-btn d-flex justify-content-between">
+      <h5>Kateqoriya əlavə et</h5>
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <hr />
+    <div class="category-popup-middle">
+      <div class="category-name form-group">
+        <label for="category-name">Kateqoriya adı</label>
+        <br />
+        <input type="text" placeholder="Kateqoriyanın adını qeyd edin" />
+      </div>
+      <div
+        class="upload-category-icon"
+        onclick="document.getElementById('fileInput').click()"
+      >
+        <div class="upload-box">
+          <div class="upload-icon" id="uploadIcon">
+            <img src="{% static 'images/upload-category.png' %}" alt="Upload Icon" />
+          </div>
+          <div class="uploaded-image" id="uploadedImage" style="display: none">
+            <img id="previewImage" alt="Uploaded Image" />
+          </div>
+          <p>İcon ağ rəngdə və PNG formatında olmalıdır</p>
+        </div>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/png"
+          style="display: none"
+          onchange="handleFileUpload(event)"
+        />
+      </div>
+    </div>
+    <div class="category-popup-btns d-flex justify-content-center gap-5">
+      <button class="category-popup-close">Çıxış</button>
+      <button class="category-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+
+  <div class="service-popup">
+    <div class="close-service-popup-btn d-flex justify-content-between">
+      <h5>Xidmət əlavə et</h5>
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <hr />
+    <div class="service-popup-middle">
+      <div class="service-name form-group">
+        <label for="service-name">Xidmət adı</label>
+        <br />
+        <input type="text" placeholder="Xidmətin adını qeyd edin" />
+      </div>
+      <div class="service-category-select">
+        <label for="service-category">Kateqoriya seçimi</label>
+        <div class="select-wrapper">
+          <select
+            name="service-category"
+            id="service-category"
+            onchange="updateSelectLabel(this)"
+          >
+            <option value="" disabled selected hidden>
+              Kateqoriyanın adını seçin
+            </option>
+            {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+          </select>
+          <i class="fa fa-chevron-down"></i>
+        </div>
+      </div>
+      <div class="service-time-select">
+        <label for="service-time">Prosedur müddəti</label>
+        <input type="text" id="service-time" placeholder="Prosedur müddətini qeyd edin" />
+      </div>
+      <div class="service-price form-group">
+        <label for="price-input">Qiymət</label>
+        <div class="price-input-wrapper">
+          <span>AZN</span>
+          <div class="divider"></div>
+          <input type="number" id="price-input" placeholder="50" />
+        </div>
+      </div>
+    </div>
+    <div class="service-popup-btns d-flex justify-content-center gap-5">
+      <button class="service-popup-close">Çıxış</button>
+      <button class="service-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+
+  <div class="inside-category-services-popup">
+    <div
+      class="close-inside-category-services-popup-btn d-flex justify-content-between"
+    >
+      <h5 class="inside-category-title">Kateqoriya</h5>
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <hr />
+    <div class="inside-category-services-popup-middle">
+      <h6>Xidmətlər</h6>
+      <div class="inside-category-service-list"></div>
+      <hr>
+    </div>
+    <div
+      class="inside-category-service-popup-btns d-flex justify-content-center gap-5"
+    >
+      <button class="inside-category-service-popup-close">Çıxış</button>
+    </div>
+  </div>
+
+  <div class="category-delete-warning-popup">
+    <div class="close-category-delete-warning-popup-btn">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <div class="category-delete-warning-popup-middle">
+      <h6>Bu kateqoriyanı ləğv etmək istədiyinizə əminsiniz?</h6>
+    </div>
+    <div
+      class="category-delete-warning-popup-btns d-flex justify-content-center gap-5"
+    >
+      <button class="category-delete-warning-popup-close">Çıxış</button>
+      <button class="category-delete-warning-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+
+  <div class="service-delete-warning-popup">
+    <div class="close-service-delete-warning-popup-btn">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <div class="service-delete-warning-popup-middle">
+      <h6>Bu xidməti ləğv etmək istədiyinizə əminsiniz?</h6>
+    </div>
+    <div
+      class="service-delete-warning-popup-btns d-flex justify-content-center gap-5"
+    >
+      <button class="service-delete-warning-popup-close">Çıxış</button>
+      <button class="service-delete-warning-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+    var STATIC_URL = "{% static '' %}";
+</script>
+<script src="{% static 'scripts/services.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

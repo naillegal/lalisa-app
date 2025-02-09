@@ -1,0 +1,244 @@
+#slot {
+  .excel-bg {
+    width: 100%;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    .search-and-export-excel {
+      margin-bottom: 20px;
+
+      .search-section {
+        display: flex;
+        gap: 10px;
+
+        .search-box {
+          display: flex;
+          align-items: center;
+          padding: 5px 10px;
+          border-radius: 8px;
+          border: 1px solid #e0e0e0;
+
+          i {
+            margin-right: 10px;
+            color: #888;
+          }
+
+          input {
+            border: none;
+            outline: none;
+            background: none;
+          }
+        }
+
+        .status-select {
+          select {
+            padding: 5px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            outline: none;
+          }
+        }
+      }
+
+      .export-excel {
+        button {
+          background-color: rgba(84, 186, 79, 1);
+          color: #ffffff;
+          border: none;
+          padding: 12px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 500;
+          transition: 0.2s ease-in-out;
+
+          i {
+            margin-right: 5px;
+          }
+
+          &:hover {
+            background-color: #218838;
+          }
+        }
+      }
+    }
+
+    .excel-table {
+      width: 100%;
+      overflow: auto;
+      scrollbar-width: thin;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      border: 1px solid #e0e0e0;
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        color: rgba(75, 85, 99, 1);
+
+        thead {
+          background-color: rgba(245, 246, 250, 1);
+
+          th {
+            padding: 30px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            color: rgba(17, 24, 39, 1);
+            font-weight: 500;
+
+            &:last-child {
+              border-top-right-radius: 10px;
+            }
+
+            &:first-child {
+              border-top-left-radius: 10px;
+            }
+          }
+        }
+
+        tbody {
+          tr {
+            td {
+              min-width: 190px;
+              padding: 20px;
+              border-bottom: 1px solid #e0e0e0;
+
+              .user-info {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+
+                img {
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                }
+              }
+              .excel-user-entry-time {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 5px 10px;
+                border-radius: 6px;
+                background-color: rgba(209, 250, 229, 1);
+                color: rgba(34, 197, 94, 1);
+                font-weight: 600;
+                font-size: 14px;
+                border: 1px solid rgba(34, 197, 94, 0.3);
+                width: fit-content;
+
+                .dot {
+                  height: 6px;
+                  width: 6px;
+                  background-color: rgba(34, 197, 94, 1);
+                  border-radius: 50%;
+                  margin-right: 5px;
+                }
+              }
+              .excel-user-out-time {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 5px 10px;
+                border-radius: 6px;
+                background-color: rgba(254, 203, 203, 0.2);
+                color: rgba(220, 38, 38, 1);
+                font-weight: 600;
+                font-size: 14px;
+                border: 1px solid rgba(220, 38, 38, 1);
+                width: fit-content;
+
+                .dot {
+                  height: 6px;
+                  width: 6px;
+                  background-color: rgba(220, 38, 38, 1);
+                  border-radius: 50%;
+                  margin-right: 5px;
+                }
+              }
+            }
+          }
+
+          tr:last-child td {
+            border-bottom: none;
+          }
+        }
+
+        .custom-checkbox {
+          display: inline-flex;
+          align-items: center;
+          cursor: pointer;
+
+          input[type="checkbox"] {
+            display: none;
+          }
+
+          .checkmark {
+            width: 16px;
+            height: 16px;
+            border: 1px solid rgba(107, 114, 128, 1);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            transition: all 0.3s ease;
+
+            i {
+              font-size: 14px;
+              color: transparent;
+              transition: color 0.3s ease;
+            }
+          }
+
+          input[type="checkbox"]:checked + .checkmark {
+            background-color: rgba(84, 186, 79, 1);
+            border-color: rgba(84, 186, 79, 1);
+
+            i {
+              color: #ffffff;
+            }
+          }
+        }
+      }
+    }
+
+    .pagination-excel {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 40px;
+
+      span {
+        color: rgba(75, 85, 99, 1);
+        font-size: 14px;
+      }
+
+      .pagination-buttons {
+        display: flex;
+        gap: 5px;
+
+        button {
+          padding: 5px 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          background-color: rgba(235, 236, 239, 1);
+          cursor: pointer;
+          transition: 0.2s ease-in-out;
+          font-weight: 500;
+          color: rgba(75, 85, 99, 1);
+
+          &:hover {
+            background-color: rgba(84, 186, 79, 1);
+            color: white;
+          }
+
+          &.active {
+            background-color: rgba(84, 186, 79, 1);
+            color: #ffffff;
+          }
+        }
+      }
+    }
+  }
+}

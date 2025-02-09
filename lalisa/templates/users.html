@@ -1,0 +1,289 @@
+{% extends 'layout.html' %} {% load static %} {% block main %}
+
+<section id="slot">
+  <div class="users-bg">
+    <div
+      class="search-and-add-user d-flex justify-content-between align-items-center"
+    >
+      <div class="search-section d-flex align-items-center">
+        <form method="get" style="display: flex; align-items: center;">
+          <div class="search-box d-flex align-items-center">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="search"
+              name="search"
+              placeholder="Search"
+              value="{{ search_query|default_if_none:'' }}"
+            />
+          </div>
+        </form>
+        <div class="status-select">
+          <select name="status-selection" id="status-selection">
+            <option value="" hidden selected>Status</option>
+            <option value="active">Aktiv et</option>
+            <option value="inactive">Deaktiv et</option>
+          </select>
+        </div>
+      </div>
+      <div class="add-user">
+        <button><i class="fa-solid fa-plus"></i> Əlavə edin</button>
+      </div>
+    </div>
+    <div class="users-table">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <label class="custom-checkbox">
+                <input type="checkbox" />
+                <span class="checkmark">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+              </label>
+              Sıra
+            </th>
+            <th>Ad</th>
+            <th>Qeydiyyat tarixi</th>
+            <th>Email</th>
+            <th>Nömrə</th>
+            <th>Doğum tarixi</th>
+            <th>Cinsiyyət</th>
+            <th>Status</th>
+            <th>Əməliyyat</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>
+              <label class="custom-checkbox">
+                <input
+                  type="checkbox"
+                  class="row-checkbox"
+                  data-user-id="{{ user.id }}"
+                />
+                <span class="checkmark">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+              </label>
+              {{ forloop.counter }}
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <img
+                src="{% if user.image %}{{ user.image.url }}{% else %}{% static 'images/user-default.jpg' %}{% endif %}"
+                alt="User"
+                />
+                <span class="user-info-name"
+                  >{{ user.first_name }} {{ user.last_name }}</span
+                >
+              </div>
+            </td>
+            <td>{{ user.created_at|date:"d/m/Y" }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.date_of_birth|date:"d/m/Y" }}</td>
+            <td>{{ user.get_gender_display }}</td>
+            <td>
+              {% if user.status == 'active' %}
+              <div class="active-status-bg">Aktiv</div>
+              {% else %}
+              <div class="deactive-status-bg">Deaktiv</div>
+              {% endif %}
+            </td>
+            <td>
+              <div class="d-flex gap-3">
+                <div>
+                  <i
+                    class="user-edit-toggle fa-regular fa-pen-to-square"
+                    data-user-id="{{ user.id }}"
+                  ></i>
+                </div>
+                <div>
+                  <i
+                    class="user-delete-toggle fa-solid fa-trash"
+                    data-user-id="{{ user.id }}"
+                  ></i>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="9" class="text-center">İstifadəçi tapılmadı.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-users">
+      <div class="pagination-buttons">
+        {% if users.has_previous %}
+        <a href="?page={{ users.previous_page_number }}&search={{ search_query }}">
+          <button>&laquo;</button>
+        </a>
+        {% else %}
+        <button disabled>&laquo;</button>
+        {% endif %}
+
+        {% for pagenum in users.paginator.page_range %}
+          {% if users.number == pagenum %}
+          <button class="active">{{ pagenum }}</button>
+          {% else %}
+          <a href="?page={{ pagenum }}&search={{ search_query }}">
+            <button>{{ pagenum }}</button>
+          </a>
+          {% endif %}
+        {% endfor %}
+
+        {% if users.has_next %}
+        <a href="?page={{ users.next_page_number }}&search={{ search_query }}">
+          <button>&raquo;</button>
+        </a>
+        {% else %}
+        <button disabled>&raquo;</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="users-delete-popup">
+    <div class="close-users-delete-popup-btn">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <div class="users-delete-popup-middle">
+      <h6>Bu istifadəçini silmək istədiyinizə əminsiniz?</h6>
+    </div>
+    <div class="users-delete-popup-btns d-flex justify-content-center gap-5">
+      <button class="users-delete-popup-close">Çıxış</button>
+      <button class="users-delete-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+  <div class="users-activate-popup">
+    <div class="close-users-activate-popup-btn">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <div class="users-activate-popup-middle">
+      <h6>Seçilmiş istifadəçiləri aktiv etmək istədiyinizə əminsiniz?</h6>
+    </div>
+    <div class="users-activate-popup-btns d-flex justify-content-center gap-5">
+      <button class="users-activate-popup-close">Çıxış</button>
+      <button class="users-activate-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+  <div class="users-deactivate-popup">
+    <div class="close-users-deactivate-popup-btn">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <div class="users-deactivate-popup-middle">
+      <h6>Seçilmiş istifadəçiləri deaktiv etmək istədiyinizə əminsiniz?</h6>
+    </div>
+    <div
+      class="users-deactivate-popup-btns d-flex justify-content-center gap-5"
+    >
+      <button class="users-deactivate-popup-close">Çıxış</button>
+      <button class="users-deactivate-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+  <div class="users-add-or-edit-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>İstifadəçi qeydiyyatı</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="users-add-or-edit-popup-middle">
+      <form action="add-user-form">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="first_name">Ad</label>
+          <input type="text" id="first_name" />
+        </div>
+        <div class="form-group">
+          <label for="last_name">Soyad</label>
+          <input type="text" id="last_name" />
+        </div>
+        <div class="form-group">
+          <label for="email">E-poçt</label>
+          <input type="text" id="email" />
+        </div>
+        <div class="form-group d-flex">
+          <div>
+            <label for="date_of_birth">Doğum tarixi</label>
+            <input type="date" id="date_of_birth" />
+          </div>
+          <div>
+            <label for="gender">Cinsiyyət</label>
+            <select name="gender" id="gender">
+              <option value="male">Kişi</option>
+              <option value="female">Qadın</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="phone">Telefon nömrəsi</label>
+          <input type="text" id="phone" />
+        </div>
+        <div class="form-group password-field">
+          <label for="password">Şifrə</label>
+          <div class="password-container">
+            <i class="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              id="password"
+              placeholder="Şifrə daxil edin"
+            />
+            <i class="fa-solid fa-eye-slash toggle-password"></i>
+          </div>
+        </div>
+      </form>
+      <div
+        class="users-add-or-edit-popup-middle-action-btns d-flex justify-content-center gap-3"
+      >
+        <button class="treatment-content-popup-close">Cancel</button>
+        <button class="treatment-content-popup-confirm">Save</button>
+      </div>
+    </div>
+  </div>
+  <div class="user-reservation-info-popup">
+    <div class="d-flex justify-content-between">
+      <div>
+        <h4>Rezervasiya tarixçəsi</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-x" id="reservationPopupClose"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="user-reservation-history">
+      <div class="text-center">
+        <img id="reservationUserImage" src="{% static 'images/user-default.jpg' %}" alt="User" />
+        <p id="reservationUserName" class="user-reservation-name">Farid Mirzayev</p>
+      </div>
+    </div>
+    <hr />
+    <div class="reservation-history-view-box">
+      <div class="reservation-history-view swiper">
+        <div class="swiper-wrapper" id="userHistorySwiperWrapper">
+        </div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
+    <div class="user-reservation-action-btns">
+      <button class="user-reservation-close">Çıxış</button>
+    </div>
+  </div>
+  <div id="overlay"></div>
+</section>
+
+{% endblock %} {% block scripts %} {{ block.super }}
+<script>
+  var STATIC_URL = "{% static '' %}";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

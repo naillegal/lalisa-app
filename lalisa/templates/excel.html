@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+<section id="slot">
+  <div class="excel-bg">
+    <div class="search-and-export-excel d-flex justify-content-between align-items-center">
+      <div class="search-section d-flex align-items-center">
+        <div>
+          <h4>Rezervasiyalar</h4>
+          <div class="search-box d-flex align-items-center">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="search-input" placeholder="Search" value="{{ search_query }}">
+          </div>
+        </div>
+      </div>
+      <div class="export-excel">
+        <button id="export-btn"><i class="fa-solid fa-download"></i> Export Excel</button>
+      </div>
+    </div>
+    <div class="excel-table">
+      <table id="excel-table">
+        <thead>
+          <tr>
+            <th>
+              <label class="custom-checkbox">
+                <input type="checkbox" id="global-checkbox" />
+                <span class="checkmark">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+              </label>
+              Sıra
+            </th>
+            <th>Ad</th>
+            <th>Nömrə</th>
+            <th>Həkim</th>
+            <th>Qiymət</th>
+            <th>Tarix</th>
+            <th>Xidmət</th>
+            <th>Giriş</th>
+            <th>Çıxış</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reservation in reservations %}
+          <tr data-id="{{ reservation.id }}">
+            <td>
+              <label class="custom-checkbox">
+                <input type="checkbox" class="row-checkbox" data-id="{{ reservation.id }}" />
+                <span class="checkmark">
+                  <i class="fa-solid fa-check"></i>
+                </span>
+              </label>
+              {{ forloop.counter }}
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <span class="user-info-name">
+                  {% if reservation.user %}
+                    {{ reservation.user.first_name }} {{ reservation.user.last_name }}
+                  {% else %}
+                    {{ reservation.full_name }}
+                  {% endif %}
+                </span>
+              </div>
+            </td>
+            <td>
+              {% if reservation.user %}
+                {{ reservation.user.phone }}
+              {% else %}
+                {{ reservation.phone }}
+              {% endif %}
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <span class="user-info-name">
+                  {% if reservation.doctor %}
+                    {{ reservation.doctor.first_name }} {{ reservation.doctor.last_name }}
+                  {% endif %}
+                </span>
+              </div>
+            </td>
+            <td>{{ reservation.total_payments }}₼</td>
+            <td>
+              {% if reservation.last_payment_date %}
+                {{ reservation.last_payment_date|date:"d/m/Y" }}
+              {% endif %}
+            </td>
+            <td>
+              {{ reservation.services.all|join:", " }}
+            </td>
+            <td>
+              <div class="excel-user-entry-time">
+                <span class="dot"></span>
+                {% if reservation.accepted_at %}
+                  {{ reservation.accepted_at|time:"H:i" }}
+                {% endif %}
+              </div>
+            </td>
+            <td>
+              <div class="excel-user-out-time">
+                <span class="dot"></span>
+                {% if reservation.last_payment_date %}
+                  {{ reservation.last_payment_date|time:"H:i" }}
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-excel">
+      <div class="pagination-buttons">
+        {% if reservations.has_previous %}
+          <button class="page-btn" data-page="{{ reservations.previous_page_number }}">&laquo;</button>
+        {% else %}
+          <button disabled>&laquo;</button>
+        {% endif %}
+        {% for num in reservations.paginator.page_range %}
+          {% if reservations.number == num %}
+            <button class="page-btn active" data-page="{{ num }}">{{ num }}</button>
+          {% else %}
+            <button class="page-btn" data-page="{{ num }}">{{ num }}</button>
+          {% endif %}
+        {% endfor %}
+        {% if reservations.has_next %}
+          <button class="page-btn" data-page="{{ reservations.next_page_number }}">&raquo;</button>
+        {% else %}
+          <button disabled>&raquo;</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div id="overlay"></div>
+</section>
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'scripts/excel.js' %}"></script>
+{% endblock %}

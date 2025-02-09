@@ -1,0 +1,361 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<section id="slot">
+  <div class="moderators-bg">
+    <div
+      class="search-and-add-moderator d-flex justify-content-between align-items-center"
+    >
+      <div class="search-section d-flex align-items-center">
+        <form method="get" action="" class="d-flex">
+          <div class="search-box d-flex align-items-center">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="search"
+              name="search"
+              placeholder="Search"
+              value="{{ search_query|default_if_none:'' }}"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="add-moderator">
+        <button id="addModeratorBtn"><i class="fa-solid fa-plus"></i> Əlavə edin</button>
+      </div>
+    </div>
+
+    <div class="moderators-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Ad</th>
+            <th>Rol icazəsi</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if moderators %}
+            {% for moderator in moderators %}
+              <tr>
+                <td>
+                  {{ forloop.counter }}
+                </td>
+                <td>
+                  <div class="moderator-info d-flex align-items-center">
+                    {% if moderator.image %}
+                      <img src="{{ moderator.image.url }}" alt="User" />
+                    {% else %}
+                      <img src="{% static 'images/user-default.jpg' %}" alt="User" />
+                    {% endif %}
+                    <span class="user-info-name">{{ moderator.full_name }}</span>
+                    <div>
+                      <i
+                        class="moderator-edit-toggle fa-regular fa-pen-to-square"
+                        data-id="{{ moderator.id }}"
+                      ></i>
+                    </div>
+                  </div>
+                </td>
+                <td class="moderator-permission-table-view">
+                  <div class="statistics-permission-table-view {% if not moderator.can_view_statistics %}d-none{% endif %}">
+                    <i class="fa-solid fa-chart-simple"></i> Statiska
+                  </div>
+                  <div class="calendar-permission-table-view {% if not moderator.can_view_calendar %}d-none{% endif %}">
+                    <i class="fa-regular fa-calendar-days"></i> Təqvim
+                  </div>
+                  <div class="users-permission-table-view {% if not moderator.can_view_users %}d-none{% endif %}">
+                    <i class="fa-solid fa-user"></i> İstifadəçilər
+                  </div>
+                  <div class="services-permission-table-view {% if not moderator.can_view_services %}d-none{% endif %}">
+                    <i class="fa-solid fa-gear"></i> Xidmətlər
+                  </div>
+                  <div class="notifications-permission-table-view {% if not moderator.can_view_notification %}d-none{% endif %}">
+                    <i class="fa-regular fa-message"></i> Bildiriş
+                  </div>
+                  <div class="treatment-permission-table-view {% if not moderator.can_view_treatment %}d-none{% endif %}">
+                    <i class="fa-regular fa-heart"></i> Müalicə
+                  </div>
+                  <div class="cashback-permission-table-view {% if not moderator.can_view_cashback %}d-none{% endif %}">
+                    <i class="fa-solid fa-wallet"></i> Cashback
+                  </div>
+                  <div class="pages-permission-table-view {% if not moderator.can_view_pages %}d-none{% endif %}">
+                    <i class="fa-solid fa-file-lines"></i> Səhifələr
+                  </div>
+                  <div class="discount-code-permission-table-view {% if not moderator.can_view_discount_code %}d-none{% endif %}">
+                    <i class="fa-solid fa-square-binary"></i> Endirim kodu
+                  </div>
+                  <div class="doctors-permission-table-view {% if not moderator.can_view_doctors %}d-none{% endif %}">
+                    <i class="fa-solid fa-heart-pulse"></i> Həkimlər
+                  </div>
+                  <div class="history-permission-table-view {% if not moderator.can_view_history %}d-none{% endif %}">
+                    <i class="fa-solid fa-clock-rotate-left"></i> Tarixcə
+                  </div>
+                  <div class="moderator-permission-table-view {% if not moderator.can_view_moderator %}d-none{% endif %}">
+                    <i class="fa-brands fa-black-tie"></i> Moderator
+                  </div>
+                  <div class="laser-permission-table-view {% if not moderator.can_view_laser %}d-none{% endif %}">
+                    <i class="fa-solid fa-charging-station"></i> Lazer atış istifadəsi
+                  </div>
+                  <div class="payment-acceptance-permission-table-view {% if not moderator.can_view_payment_acceptance %}d-none{% endif %}">
+                    <i class="fa-solid fa-money-check-dollar"></i> Ödəniş qəbulu
+                  </div>
+                  <div class="doctor-payment-permission-table-view {% if not moderator.can_view_doctor_payment %}d-none{% endif %}">
+                    <i class="fa-solid fa-cash-register"></i> Həkim ödənişi
+                  </div>
+                  <div class="excel-permission-table-view {% if not moderator.can_view_excel %}d-none{% endif %}">
+                    <i class="fa-regular fa-file-excel"></i> Excel
+                  </div>
+                </td>
+                <td>
+                  <button class="moderator-table-active-btn {% if moderator.status != 'active' %}d-none{% endif %}">
+                    <span class="dot"></span> Aktiv
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                  <button class="moderator-table-deactive-btn {% if moderator.status != 'inactive' %}d-none{% endif %}">
+                    <span class="dot"></span> Deaktiv
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                </td>
+              </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="4">Moderator tapılmadı.</td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if moderators.has_other_pages %}
+      <div class="pagination-moderators">
+        <div class="pagination-buttons">
+          {% if moderators.has_previous %}
+            <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">&laquo;</a>
+          {% else %}
+            <button disabled>&laquo;</button>
+          {% endif %}
+
+          {% for num in moderators.paginator.page_range %}
+            {% if moderators.number == num %}
+              <a class="active" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+            {% else %}
+              <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+            {% endif %}
+          {% endfor %}
+
+          {% if moderators.has_next %}
+            <a href="?page={{ moderators.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">&raquo;</a>
+          {% else %}
+            <button disabled>&raquo;</button>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="moderator-status-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>İstifadəçi statusu</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="moderator-status-popup-middle">
+      <div>
+        <input type="radio" name="status-type" id="moderator-status-active" />
+        <label style="color: green" for="moderator-status-active">Aktiv</label>
+      </div>
+      <hr />
+      <div>
+        <input type="radio" name="status-type" id="moderator-status-deactive" />
+        <label style="color: red" for="moderator-status-deactive">Deaktiv</label>
+      </div>
+      <hr />
+    </div>
+    <div
+      class="moderator-status-popup-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="moderator-status-popup-close">Çıxış</button>
+      <button class="moderator-status-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+
+  <div class="add-moderator-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>Əlavə edin</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="add-moderator-popup-middle">
+      <div class="profile-section">
+        <div class="relative-container">
+          <img src="{% static 'images/user-mini-pic.png' %}" alt="" id="profile-preview"/>
+          <i class="fa-solid fa-camera"></i>
+          <input
+            type="file"
+            accept="image/*"
+            id="profile-image-input"
+            style="display: none"
+          />
+        </div>
+        <p>Şəkil əlavə et</p>
+      </div>
+
+      <div class="middle-upside-inputs">
+        <input type="hidden" id="moderator-id" value="" />
+        <div class="form-group">
+          <div>
+            <label>Ad soyad</label>
+            <input type="text" id="full-name-input" placeholder="Ad, soyad daxil edin" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <label>Parol</label>
+            <input type="password" id="password-input" placeholder="Parolu daxil edin" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <label>Parol təkrar</label>
+            <input type="password" id="password-again-input" placeholder="Təkrar parolu daxil edin" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <label>E-poçt</label>
+            <input type="text" id="email-input" placeholder="E-poçtu daxil edin" />
+          </div>
+        </div>
+      </div>
+
+      <div class="moderator-roles">
+        <label for="moderator-roles">Rol icazəsi</label>
+        <div class="role-name-container mt-3">
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-chart-simple"></i> Statiska</div>
+            <input type="checkbox" id="can_view_statistics" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-regular fa-calendar-days"></i> Təqvim</div>
+            <input type="checkbox" id="can_view_calendar" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-user"></i> İstifadəçilər</div>
+            <input type="checkbox" id="can_view_users" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-gear"></i> Xidmətlər</div>
+            <input type="checkbox" id="can_view_services" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-regular fa-message"></i> Bildiriş</div>
+            <input type="checkbox" id="can_view_notification" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-regular fa-heart"></i> Müalicə</div>
+            <input type="checkbox" id="can_view_treatment" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-wallet"></i> Cashback</div>
+            <input type="checkbox" id="can_view_cashback" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-file-lines"></i> Səhifələr</div>
+            <input type="checkbox" id="can_view_pages" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-square-binary"></i> Endirim kodu</div>
+            <input type="checkbox" id="can_view_discount_code" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-heart-pulse"></i> Həkimlər</div>
+            <input type="checkbox" id="can_view_doctors" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-clock-rotate-left"></i> Tarixcə</div>
+            <input type="checkbox" id="can_view_history" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-brands fa-black-tie"></i> Moderator</div>
+            <input type="checkbox" id="can_view_moderator" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-charging-station"></i> Lazer atış</div>
+            <input type="checkbox" id="can_view_laser" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-money-check-dollar"></i> Ödəniş qəbulu</div>
+            <input type="checkbox" id="can_view_payment_acceptance" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-solid fa-cash-register"></i> Həkim ödənişi</div>
+            <input type="checkbox" id="can_view_doctor_payment" />
+          </div>
+          <hr />
+
+          <div class="d-flex justify-content-between">
+            <div><i class="fa-regular fa-file-excel"></i> Excel</div>
+            <input type="checkbox" id="can_view_excel" />
+          </div>
+          <hr />
+        </div>
+      </div>
+    </div>
+    <div
+      class="add-moderator-popup-middle-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="add-moderator-popup-close">Çıxış</button>
+      <button class="add-moderator-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script>
+  var STATIC_URL = "{% static '' %}";
+</script>
+<script src="{% static 'scripts/moderator.js' %}"></script>
+
+{% endblock %}

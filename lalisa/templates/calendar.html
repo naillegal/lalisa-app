@@ -1,0 +1,339 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+<script>
+    var STATIC_URL = "{% static '' %}";
+</script>
+<section id="slot">
+  <div class="slot-title d-flex justify-content-between">
+    <div>
+      <h4>Təqvim</h4>
+    </div>
+    <div class="change-calendar-view-buttons">
+      <button class="calendar-view-by-doctor">Həkim üzrə</button>
+      <button class="calendar-view-by-date">Tarix üzrə</button>
+    </div>
+  </div>
+  <div class="d-flex gap-1 curr-and-cal">
+    <div class="event-container">
+      <div class="event-button-box">
+        <button>
+          <i class="fa-regular fa-square-plus"></i>Rezervasiya əlavə et
+        </button>
+      </div>
+      <div class="events">
+        <div class="events-list"></div>
+        <div class="pagination-events">
+          <div class="pagination-buttons">
+            <button class="prev-page">&laquo;</button>
+            <div class="page-numbers"></div>
+            <button class="next-page">&raquo;</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="calendar-container">
+      <div class="header d-flex justify-content-between align-items-center">
+        <div class="present-month" id="presentMonth">Noyabr 2024</div>
+        <div class="view-options d-flex">
+          <div class="view-option" id="dayViewButton">Gün</div>
+          <div class="view-option" id="weekViewButton">Həftə</div>
+          <div class="view-option active" id="monthViewButton">Ay</div>
+        </div>
+        <div class="d-flex rightside gap-2">
+          <div class="arrows d-flex">
+            <div class="arrow prev-arrow">
+              <i class="fa-solid fa-chevron-left"></i>
+            </div>
+            <div class="arrow next-arrow">
+              <i class="fa-solid fa-chevron-right"></i>
+            </div>
+          </div>
+          <div class="today" id="todayButton">Bu Gün</div>
+        </div>
+      </div>
+      <div class="calendar" id="calendarTable"></div>
+      <div class="week-view d-none" id="weekView">
+        <table>
+          <thead>
+            <tr>
+              <th>Saat</th>
+              <th>B.E</th>
+              <th>Ç.A</th>
+              <th>Ç</th>
+              <th>C.A</th>
+              <th>C.</th>
+              <th>Ş.</th>
+              <th>B.</th>
+            </tr>
+          </thead>
+          <tbody id="weekViewBody"></tbody>
+        </table>
+      </div>
+      <div class="day-view d-none" id="dayView">
+        <table>
+          <thead>
+            <tr>
+              <th>Saat</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="dayViewBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="calendar-by-doctor-container">
+      <div class="container-fluid">
+        <div class="row row-gap-5" id="doctorCardsContainer">
+        </div>
+      </div>
+    </div>
+    <div class="calendar-reservation-method-popup">
+      <div class="close-calendar-reservation-method-popup-btn">
+        <h5>Rezervasiya</h5>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <div class="calendar-reservation-method-popup-middle">
+        <h6>Müştəri rezervasiyası üçün, seçim edin.</h6>
+      </div>
+      <div class="calendar-reservation-method-popup-btns d-flex justify-content-center gap-5">
+        <button class="calendar-reservation-method-popup-registered">
+          Qeydiyyatlı
+        </button>
+        <button class="calendar-reservation-method-popup-unregistered">
+          Qeydiyyatsız
+        </button>
+      </div>
+    </div>
+    <div class="calendar-add-reservation-popup">
+      <div class="upside d-flex justify-content-between">
+        <div>
+          <h4>Rezervasiya</h4>
+        </div>
+        <div>
+          <i class="fa-solid fa-xmark"></i>
+        </div>
+      </div>
+      <hr />
+      <div class="calendar-add-reservation-popup-middle">
+        <div class="calendar-add-reservation-popup-custom-select-user">
+          <label>İstifadəçi seç</label>
+          <div class="custom-dropdown" id="userDropdown">
+            <div class="dropdown-header">
+              <span id="selected-user-option">İstifadəçinin adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="user-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="user-dropdown-list">
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="unregistered-user">
+          <div class="form-group">
+            <div>
+              <label>Ad, Soyad</label>
+              <input type="text" id="unregisteredFullName" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div>
+              <label>Telefon nömrəsi</label>
+              <input type="text" id="unregisteredPhone" />
+            </div>
+          </div>
+        </div>
+        <div class="form-group d-flex justify-content-center">
+          <div>
+            <label for="event-start-time-input">Başlama saatı</label>
+            <input type="time" id="reservationStartTime" />
+          </div>
+          <div>
+            <label for="event-end-time-input">Bitiş saatı</label>
+            <input type="time" id="reservationEndTime" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <label for="event-start-date-input">Təqvim</label>
+            <input type="date" id="reservationDate" />
+          </div>
+        </div>
+        <div class="calendar-add-reservation-popup-custom-select-doctor">
+          <label>Həkim seç</label>
+          <div class="custom-dropdown" id="doctorDropdown">
+            <div class="dropdown-header">
+              <span id="selected-doctor-option">Həkimin adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="doctor-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="doctor-dropdown-list">
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-add-reservation-popup-custom-select-service">
+          <label>Xidmət seç</label>
+          <div class="custom-dropdown" id="serviceDropdown">
+            <div class="dropdown-header">
+              <span id="selected-service-option" data-service-ids="">Xidmətin adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="service-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="service-dropdown-list"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="calendar-add-reservation-popup-middle-action-btns d-flex justify-content-center gap-3">
+          <button class="treatment-content-popup-close">Çıxış</button>
+          <button class="treatment-content-popup-confirm" id="reservationConfirmBtn">Təsdiq et</button>
+        </div>
+      </div>
+    </div>
+    <div class="calendar-reservation-list-popup">
+      <div class="d-flex justify-content-between">
+        <div>
+          <h4>Rezervasiya edən müştərilər</h4>
+        </div>
+        <div>
+          <i class="fa-solid fa-x"></i>
+        </div>
+      </div>
+      <hr />
+      <div class="reservation-list-middle" id="reservationListMiddle">
+      </div>
+    </div>
+    <div class="calendar-reservation-user-info-popup">
+      <div class="d-flex justify-content-between">
+        <div>
+          <h4>Rezervasiya</h4>
+        </div>
+        <div>
+          <i class="fa-solid fa-x"></i>
+        </div>
+      </div>
+      <hr />
+      <div class="reservation-user-history">
+        <div class="text-center">
+          <img src="{% static 'images/user-mini-pic.png' %}" alt="" class="popup-user-profile-img" />
+          <p class="reservation-user-name" id="popupUserName">Ad Soyad</p>
+          <div class="reservation-user-actions d-flex justify-content-center align-items-center gap-4">
+            <button class="reservation-info">Rezervasiya məlumatları</button>
+            <button class="reservation-history">Müştəri tarixçəsi</button>
+          </div>
+        </div>
+      </div>
+      <hr />
+      <div class="reservation-content">
+        <div class="reserved-doctor">
+          <div class="reserved-doctor-lable">
+            <label>Həkim</label>
+          </div>
+          <div class="custom-select" id="popupDoctorSelect">
+            <div class="selected-option">
+              <img src="{% static 'images/mini-profile-picture.png' %}" alt="Avatar" class="avatar" id="popupDoctorImg" />
+              <span id="popupDoctorName">Həkim Adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="popup-doctor-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="popupDoctorDropdownList">
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="reserved-time">
+          <div class="form-group">
+            <div>
+              <label for="event-start-time-input">Başlanğıc saatı</label>
+              <input type="time" id="popupStartTime" />
+            </div>
+            <div>
+              <label for="event-end-time-input">Bitiş saatı</label>
+              <input type="time" id="popupEndTime" />
+            </div>
+          </div>
+        </div>
+        <div class="reserved-date">
+          <div class="form-group">
+            <div>
+              <label for="event-start-date-input">Təqvim</label>
+              <input type="date" id="popupDate" />
+            </div>
+          </div>
+        </div>
+        <div class="reserved-service">
+          <div class="reserved-service-lable">
+            <label>Xidmət seçimi</label>
+          </div>
+          <div class="custom-select" id="popupServiceSelect">
+            <div class="selected-option">
+              <span id="popupServiceName" data-service-ids="">Xidmət Adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="popup-service-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="popupServiceDropdownList"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reservation-history-view-box">
+        <div class="reservation-history-view swiper">
+          <div class="swiper-wrapper" id="userHistorySwiperWrapper">
+          </div>
+          <div class="swiper-pagination"></div>
+        </div>
+      </div>
+      <div class="reservation-action-buttons">
+        <button class="reservation-delete" id="popupDeleteBtn">Rezervasiyanı ləğv et</button>
+        <button class="reservation-edit" id="popupEditBtn">Rezervasiyada düzəliş et</button>
+      </div>
+      <div class="reservation-edit-action-btns">
+        <button class="reservation-edit-close">Ləğv et</button>
+        <button class="reservation-edit-save" id="popupSaveBtn">Təsdiq et</button>
+      </div>
+    </div>
+    <div class="reservation-delete-warning-popup">
+      <div class="close-reservation-delete-warning-popup-btn">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <div class="reservation-delete-warning-popup-middle">
+        <h6>Bu rezervasiyanı ləğv etmək istədiyinizə əminsiniz?</h6>
+      </div>
+      <div class="reservation-delete-warning-popup-btns d-flex justify-content-center gap-5">
+        <button class="reservation-delete-warning-popup-close">
+          Çıxış
+        </button>
+        <button class="reservation-delete-warning-popup-confirm" id="popupDeleteConfirmBtn">
+          Təsdiq et
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="{% static 'scripts/calendar.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

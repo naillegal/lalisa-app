@@ -1,0 +1,15 @@
+{
+  "djlint.showInstallError": false,
+  "[django-html]": {
+    "editor.defaultFormatter": "monosans.djlint"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

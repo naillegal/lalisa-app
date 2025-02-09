@@ -1,0 +1,429 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<section id="slot">
+  <div class="doctors-upside">
+    <div
+      class="title-and-add-doctors d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <h4>Həkimlər</h4>
+      </div>
+      <div class="add-doctors">
+        <button class="add-doctor">
+          <i class="fa-solid fa-plus"></i>Həkim əlavə et
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="doctors-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Sıra</th>
+          <th>Ad</th>
+          <th>Xidmətlər</th>
+          <th>İş saatları</th>
+          <th class="doctor-permission-time">İcazə vaxtı</th>
+          <th style="padding-left: 60px">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for doctor in doctors %}
+        <tr data-row-id="{{ doctor.id }}">
+          <td>{{ forloop.counter|add:"00"|slice:"-2" }}</td>
+
+          <td>
+            <div class="user-info d-flex align-items-center">
+              {% if doctor.image %}
+                <img src="{{ doctor.image.url }}" alt="User" />
+              {% else %}
+                <img src="{% static 'images/user-mini-pic.png' %}" alt="User" />
+              {% endif %}
+              <span>{{ doctor.first_name }} {{ doctor.last_name }}</span>
+            </div>
+          </td>
+
+          <td>
+            {% if doctor.services.all %}
+              {% for service in doctor.services.all %}
+                <p>{{ service.name }}</p>
+              {% endfor %}
+            {% else %}
+              <p>--</p>
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="d-flex gap-3">
+              <div class="week-days">
+                <p>B.e</p>
+                <p>Ç.a</p>
+                <p>Ç</p>
+                <p>C.a</p>
+                <p>C</p>
+                <p>Ş</p>
+                <p>B</p>
+              </div>
+              <div class="hours-range">
+                {% for schedule in doctor.schedules_by_day %}
+                  <p>
+                    {% if schedule.is_active %}
+                      {{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}
+                    {% else %}
+                      Deaktiv
+                    {% endif %}
+                  </p>
+                {% endfor %}
+              </div>
+            </div>
+          </td>
+
+          <td class="doctor-permission">
+            {% if doctor.permission and doctor.permission.permission_type != 'none' %}
+              {% if doctor.permission.permission_type == 'date_range' %}
+                <span style="color: rgba(20, 202, 116, 1);">
+                  {{ doctor.permission.start_date|date:"d.m.Y" }} - 
+                  {{ doctor.permission.end_date|date:"d.m.Y" }}
+                </span>
+              {% elif doctor.permission.permission_type == 'time_range' %}
+                <p class="doctor-permission-date" style="color: rgba(20, 202, 116, 1);">
+                  {{ doctor.permission.specific_date|date:"d.m.Y" }}
+                </p>
+                <p class="doctor-permission-hour">
+                  {{ doctor.permission.start_time|time:"H:i" }} - {{ doctor.permission.end_time|time:"H:i" }}
+                </p>
+              {% endif %}
+            {% else %}
+              <i class="fa-solid fa-circle-xmark" style="color: red;"></i>
+            {% endif %}
+          </td>
+
+          <td>
+            <div class="status-btns">
+              <button class="doctor-edit-btn">Redaktə</button>
+              <button class="doctor-permission-btn">İcazə</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="add-doctor-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>Əlavə edin</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="add-doctor-popup-middle">
+      <div class="profile-section">
+        <div class="relative-container">
+          <img src="{% static 'images/user-mini-pic.png' %}" alt="" />
+          <i class="fa-solid fa-camera"></i>
+          <input
+            type="file"
+            accept="image/*"
+            id="profile-image-input"
+            style="display: none"
+          />
+        </div>
+        <h5 id="doctor-popup-name"></h5>
+        <p>Şəkil əlavə et</p>
+      </div>
+
+      <div class="middle-upside-inputs">
+        <div class="form-group">
+          <div>
+            <label>Ad soyad</label>
+            <input type="text" placeholder="Ad, soyad daxil edin" id="doctor-fullname-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <label>İxtisas</label>
+            <input type="text" placeholder="İxtisas adını daxil edin" id="doctor-specialty-input" />
+          </div>
+        </div>
+        <div class="add-doctor-popup-custom-select-service">
+          <label>Xidmət seç</label>
+          <div class="custom-dropdown">
+            <div class="dropdown-header">
+              <span id="selected-option">Xidmətin adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="dropdown-list">
+                {% for service in services %}
+                <li class="dropdown-item">
+                  <input type="checkbox" class="dropdown-checkbox" value="{{ service.name }}" />
+                  <span>{{ service.name }}</span>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rating-and-experience">
+        <div class="form-group d-flex">
+          <div>
+            <label>Xal</label>
+            <input type="text" placeholder="Xal daxil edin" id="doctor-rating-input" />
+          </div>
+          <div>
+            <label>İş təcrübəsi</label>
+            <input type="text" placeholder="İş təcrübəsini daxil edin" id="doctor-experience-input" />
+          </div>
+        </div>
+      </div>
+      <div class="working-schedule">
+        <label for="working-schedule">İş saatları</label>
+        <div class="week-name-container mt-3">
+          <div class="d-flex justify-content-between" data-day="1">
+            Bazar ertəsi
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between" data-day="2">
+            Çərşənbə axşamı
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between" data-day="3">
+            Çərşənbə
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between" data-day="4">
+            Cümə axşamı
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between" data-day="5">
+            Cümə
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between" data-day="6">
+            Şənbə
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+          <div class="d-flex justify-content-between" data-day="7">
+            Bazar
+            <i class="working-schedule-edit-toggle fa-regular fa-pen-to-square"></i>
+          </div>
+          <hr />
+        </div>
+      </div>
+      <div class="description-input">
+        <label for="description-input">Haqqında</label>
+        <br />
+        <textarea rows="4" id="doctor-about-input"></textarea>
+      </div>
+    </div>
+    <div
+      class="add-doctor-popup-middle-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="treatment-content-popup-close">Çıxış</button>
+      <button class="treatment-content-popup-confirm" id="doctor-save-btn">
+        Təsdiq et
+      </button>
+    </div>
+  </div>
+
+  <div class="add-doctor-active-or-deactive-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>İş saatları</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="add-doctor-active-or-deactive-popup-middle">
+      <div>
+        <input type="radio" name="permission-type" id="active" />
+        <label style="color: green" for="active">Aktiv</label>
+      </div>
+      <hr />
+      <div>
+        <input type="radio" name="permission-type" id="deactive" />
+        <label style="color: red" for="deactive">Deaktiv</label>
+      </div>
+      <hr />
+    </div>
+    <div
+      class="add-doctor-active-or-deactive-popup-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="treatment-content-popup-close">Çıxış</button>
+      <button class="treatment-content-popup-confirm" id="active-or-deactive-confirm">
+        Təsdiq et
+      </button>
+    </div>
+  </div>
+
+  <div class="doctor-working-schedule-time-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>İş saatları</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="doctor-working-schedule-time-popup-middle">
+      <div class="d-flex gap-3">
+        <div class="form-group">
+          <label>Başlanğıc saatı</label>
+          <input type="time" id="schedule-start-time" />
+        </div>
+        <div class="form-group">
+          <label>Bitiş saatı</label>
+          <input type="time" id="schedule-end-time" />
+        </div>
+      </div>
+    </div>
+    <div
+      class="doctor-working-schedule-time-popup-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="treatment-content-popup-close">Çıxış</button>
+      <button class="treatment-content-popup-confirm" id="working-schedule-save-btn">
+        Təsdiq et
+      </button>
+    </div>
+  </div>
+
+  <div class="doctor-date-and-time-permission-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>İcazə vaxtını təyin et</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="doctor-date-and-time-permission-popup-middle">
+      <div>
+        <input type="radio" name="permission-type" id="date-range" />
+        <label for="date-range">Tarix aralığı üzrə</label>
+      </div>
+      <hr />
+      <div>
+        <input type="radio" name="permission-type" id="time-range" />
+        <label for="time-range">Saat aralığı üzrə</label>
+      </div>
+      <hr />
+      <div>
+        <input type="radio" name="permission-type" id="delete-permission" />
+        <label style="color: red" for="delete-permission"
+          >İcazəni ləğv et</label
+        >
+      </div>
+      <hr />
+    </div>
+    <div
+      class="doctor-date-and-time-permission-popup-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="treatment-content-popup-close">Çıxış</button>
+      <button class="treatment-content-popup-confirm" id="choose-permission-type-btn">
+        Təsdiq et
+      </button>
+    </div>
+  </div>
+
+  <div class="doctor-per-date-permission-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>Tarix aralığı üzrə icazə vaxtı</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="doctor-per-date-permission-popup-middle">
+      <div class="d-flex gap-3">
+        <div class="form-group">
+          <label>Başlanğıc tarixi</label>
+          <input type="date" id="date-range-start" />
+        </div>
+        <div class="form-group">
+          <label>Bitiş tarixi</label>
+          <input type="date" id="date-range-end" />
+        </div>
+      </div>
+    </div>
+    <div
+      class="doctor-per-date-permission-popup-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="treatment-content-popup-close">Çıxış</button>
+      <button class="treatment-content-popup-confirm" id="date-range-confirm-btn">
+        Təsdiq et
+      </button>
+    </div>
+  </div>
+
+  <div class="doctor-per-time-permission-popup">
+    <div class="upside d-flex justify-content-between">
+      <div>
+        <h4>Saat aralığı üzrə icazə vaxtı</h4>
+      </div>
+      <div>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+    <hr />
+    <div class="doctor-per-time-permission-popup-middle">
+      <div class="form-group">
+        <label>Tarix</label>
+        <input type="date" id="time-range-date" />
+      </div>
+      <div class="d-flex gap-3">
+        <div class="form-group">
+          <label>Başlanğıc saatı</label>
+          <input type="time" id="time-range-start" />
+        </div>
+        <div class="form-group">
+          <label>Bitiş saatı</label>
+          <input type="time" id="time-range-end" />
+        </div>
+      </div>
+    </div>
+    <div
+      class="doctor-per-time-permission-popup-action-btns d-flex justify-content-center gap-3"
+    >
+      <button class="treatment-content-popup-close">Çıxış</button>
+      <button class="treatment-content-popup-confirm" id="time-range-confirm-btn">
+        Təsdiq et
+      </button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<script>
+    var STATIC_URL = "{% static '' %}";
+</script>
+<script src="{% static 'scripts/doctor.js' %}"></script>
+<script src="{% static 'scripts/cashback.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/discount-code.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

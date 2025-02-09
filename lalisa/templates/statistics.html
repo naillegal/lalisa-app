@@ -1,0 +1,225 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<section id="slot">
+  <div class="statistics-title">
+    <h2>Statistika</h2>
+  </div>
+
+  <div class="search-and-filter-statistics d-flex justify-content-between align-items-center">
+    <div class="filter d-flex gap-3">
+      <div class="date-inputs d-flex gap-2">
+        <div>
+          <label for="start-date">Başlama tarixi</label><br />
+          <input type="date" id="start-date" />
+        </div>
+        <div>
+          <label for="end-date">Bitmə tarixi</label><br />
+          <input type="date" id="end-date" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="person-and-sales-statistics">
+    <div class="custom-container">
+      <div class="row row-gap-4">
+        <div class="col-4">
+          <div class="box">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex gap-2">
+                <div><i class="fa-solid fa-user-check blue-user"></i></div>
+                <div>
+                  <p class="new-users">Yeni istifadəçilər</p>
+                  <p class="users-count" id="newUsersCount">0</p>
+                </div>
+              </div>
+              <div class="chart-box">
+                <i class="fa-solid fa-chart-simple blue-chart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="box">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex gap-2">
+                <div><i class="fa-solid fa-user-check green-user"></i></div>
+                <div>
+                  <p class="new-users">Rezervasiya sayı</p>
+                  <p class="users-count" id="reservationCount">0</p>
+                </div>
+              </div>
+              <div class="chart-box">
+                <i class="fa-solid fa-chart-simple green-chart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="box">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex gap-2">
+                <div><i class="fa-solid fa-percent orange-percentage"></i></div>
+                <div>
+                  <p class="new-users">Cashback</p>
+                  <p class="users-count" id="totalCashback">0</p>
+                </div>
+              </div>
+              <div class="chart-box">
+                <i class="fa-solid fa-chart-simple orange-chart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="box">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex gap-2">
+                <div><i class="fa-solid fa-user-check blue-user"></i></div>
+                <div>
+                  <p class="new-users">Toplam istifadəçilər</p>
+                  <p class="users-count" id="totalUsersCount">0</p>
+                </div>
+              </div>
+              <div class="chart-box">
+                <i class="fa-solid fa-chart-simple blue-chart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="box">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex gap-2">
+                <div><i class="fa-solid fa-user-check green-user"></i></div>
+                <div>
+                  <p class="new-users">Toplam həkim sayı</p>
+                  <p class="users-count" id="totalDoctorsCount">0</p>
+                </div>
+              </div>
+              <div class="chart-box">
+                <i class="fa-solid fa-chart-simple green-chart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="box">
+            <div class="d-flex justify-content-between">
+              <div class="d-flex gap-2">
+                <div><i class="fa-solid fa-percent orange-percentage"></i></div>
+                <div>
+                  <p class="new-users">Ümumi satış</p>
+                  <p class="users-count" id="totalSales">0</p>
+                </div>
+              </div>
+              <div class="chart-box">
+                <i class="fa-solid fa-chart-simple orange-chart"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="statistics-middle">
+    <div class="d-flex gap-4">
+      <div class="middle-1">
+        <div class="income-growth">
+          <div class="d-flex justify-content-between">
+            <div>
+              <h6>Gəlir artımı</h6>
+              <p class="weekend-report" id="incomeReportLabel">Aylıq Hesabat</p>
+            </div>
+            <div class="view-options-middle-1">
+              <div class="view-option-middle-1" data-type="gun">Gün</div>
+              <div class="view-option-middle-1" data-type="hefte">Həftə</div>
+              <div class="view-option-middle-1 active" data-type="ay">Ay</div>
+            </div>
+            <div>
+              <h6 id="incomeGrowthSum">₼0.00</h6>
+            </div>
+          </div>
+          <div>
+            <canvas id="incomeGrowthChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="middle-2">
+        <div class="customer-overview">
+          <div class="d-flex justify-content-between">
+            <div class="title">Ödəniş metodları</div>
+            <div class="view-options-middle-2">
+              <div class="view-option-middle-2" data-type="gun">Gün</div>
+              <div class="view-option-middle-2" data-type="hefte">Həftə</div>
+              <div class="view-option-middle-2 active" data-type="ay">Ay</div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-around mt-4">
+            <div class="subtotal-box">
+              <div class="d-flex">
+                <div class="green-point"></div>
+                <p class="subtotal-p">Kart</p>
+              </div>
+              <div class="d-flex">
+                <div class="yellow-point"></div>
+                <p class="subtotal-p">Nağd</p>
+              </div>
+              <div class="d-flex">
+                <div class="blue-point"></div>
+                <p class="subtotal-p">Cashback</p>
+              </div>
+            </div>
+            <div class="round-chart">
+              <canvas id="paymentMethodsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="statistics-under">
+    <div class="statistics-container">
+      <div class="statistics-header d-flex justify-content-between">
+        <div>
+          <h3>Həkimlərin Statiskası</h3>
+          <p>İllik qazancın icmalı</p>
+        </div>
+        <div class="custom-dropdown" id="doctorDropdown">
+          <div class="dropdown-header" id="doctorDropdownHeader">
+            <span id="selected-doctor">Həkim seç</span>
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="dropdown-menu">
+            <div class="dropdown-search">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="doctorSearchInput" placeholder="Axtarış" />
+            </div>
+            <ul id="doctorDropdownList">
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="statistics-chart">
+        <canvas id="earningsChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'scripts/statistics.js' %}"></script>
+<script src="{% static 'scripts/doctor.js' %}"></script>
+<script src="{% static 'scripts/cashback.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/discount-code.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

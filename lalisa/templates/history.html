@@ -1,0 +1,78 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block main %}
+<section id="slot">
+  <div class="slot-title">
+    <h4>Tarixcə</h4>
+  </div>
+  <div class="history-bg">
+    <div class="history-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Ad</th>
+            <th>Bildiriş</th>
+            <th>Tarix</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>
+              {{ forloop.counter0|add:1|default_if_none:1 }}
+            </td>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                {% if log.moderator.image %}
+                  <img src="{{ log.moderator.image.url }}" alt="User" />
+                {% else %}
+                  <img src="{% static 'images/user-mini-pic.png' %}" alt="User" />
+                {% endif %}
+                <span>{{ log.moderator.full_name }}</span>
+              </div>
+            </td>
+            <td>
+              {{ log.get_action_type_display }}
+            </td>
+            <td class="history-date-td">
+              {{ log.created_at|date:"d/m/Y H:i" }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="pagination-history">
+    <div class="pagination-buttons">
+      {% if logs.has_previous %}
+        <a href="?page={{ logs.previous_page_number }}">&laquo;</a>
+      {% else %}
+        <button disabled>&laquo;</button>
+      {% endif %}
+
+      {% for num in logs.paginator.page_range %}
+        {% if logs.number == num %}
+          <button class="active">{{ num }}</button>
+        {% else %}
+          <a href="?page={{ num }}"><button>{{ num }}</button></a>
+        {% endif %}
+      {% endfor %}
+
+      {% if logs.has_next %}
+        <a href="?page={{ logs.next_page_number }}">&raquo;</a>
+      {% else %}
+        <button disabled>&raquo;</button>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'scripts/history.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'layout.html' %}
+{% load static %}
+
+{% block main %}
+
+<section id="slot">
+  <div class="notification-main" id="notificationMain">
+    <div class="slot-title">
+      <h4>Bildiriş</h4>
+    </div>
+    <div class="notification-bg">
+      <div class="search-and-filter-notification d-flex justify-content-between align-items-center">
+        <div class="filter d-flex gap-3">
+          <div class="filter-select">
+            <label for="filter">Filter</label>
+            <br />
+            <select name="filter-selection" id="filter-selection">
+              <option hidden value="">Seçin</option>
+              <option value="default">Filteri sıfırla</option>
+              <option value="male">Kişi</option>
+              <option value="female">Qadın</option>
+            </select>
+          </div>
+          <div class="date-inputs d-flex gap-2">
+            <div>
+              <label for="start-date">Başlama tarixi</label>
+              <br />
+              <input type="date" id="start-date" />
+            </div>
+            <div>
+              <label for="end-date">Bitmə tarixi</label>
+              <br />
+              <input type="date" id="end-date" />
+            </div>
+          </div>
+        </div>
+        <div class="search-section d-flex align-items-center">
+          <div class="search-box d-flex align-items-center">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" placeholder="Axtarış" id="notificationSearchInput" />
+          </div>
+        </div>
+      </div>
+      <div class="notification-table">
+        <table>
+          <thead>
+            <tr>
+              <th>
+                <label class="custom-checkbox">
+                  <input type="checkbox" id="selectAllCheckbox" />
+                  <span class="checkmark">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                </label>
+                Sıra
+              </th>
+              <th>Ad</th>
+              <th>Cinsiyyət</th>
+              <th>Qoşulma tarixi</th>
+            </tr>
+          </thead>
+          <tbody id="notificationTableBody">
+            {% for user in users %}
+            <tr data-user-id="{{ user.id }}">
+              <td>
+                <label class="custom-checkbox">
+                  <input type="checkbox" class="user-row-checkbox" />
+                  <span class="checkmark">
+                    <i class="fa-solid fa-check"></i>
+                  </span>
+                </label>
+                {{ forloop.counter }}
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  {% if user.image %}
+                  <img src="{{ user.image.url }}" alt="User" />
+                  {% else %}
+                  <img src="{% static 'images/user-mini-pic.png' %}" alt="User" />
+                  {% endif %}
+                  <span>{{ user.first_name }} {{ user.last_name }}</span>
+                </div>
+              </td>
+              <td>
+                {% if user.gender == 'male' %}Kişi{% else %}Qadın{% endif %}
+              </td>
+              <td>
+                {{ user.created_at|date:"d/m/Y" }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pagination-notification">
+      <div class="pagination-buttons">
+        {% if users.has_previous %}
+          <a href="?page={{ users.previous_page_number }}">&laquo;</a>
+        {% else %}
+          <button disabled>&laquo;</button>
+        {% endif %}
+
+        {% for num in users.paginator.page_range %}
+          {% if users.number == num %}
+            <button class="active">{{ num }}</button>
+          {% else %}
+            <a href="?page={{ num }}"><button>{{ num }}</button></a>
+          {% endif %}
+        {% endfor %}
+
+        {% if users.has_next %}
+          <a href="?page={{ users.next_page_number }}">&raquo;</a>
+        {% else %}
+          <button disabled>&raquo;</button>
+        {% endif %}
+      </div>
+      <button class="notification-send-btn" id="confirmSelectedUsersBtn">Təsdiqlə</button>
+    </div>
+  </div>
+
+  <div class="notification-send" id="notificationSend" style="display: none;">
+    <div class="upside-bg">
+      <div class="notification-send-relative">
+        <img src="{% static 'images/notification-send-bg.png' %}" alt="" />
+        <div>
+          <div class="notification-send-text-absolute">
+            <h1>Siz artıq istifadəçiləri<br />seçdiniz</h1>
+            <p>
+              İstifadəçilər artıq seçilib və hər biri təyin olunan bildirişi
+              almağa hazırdır. Bildiriş bölməsi hissəsində göndərmək
+              istədiyiniz bildirişi yazın.
+            </p>
+          </div>
+          <div class="notification-send-animation-absolute">
+            <img src="{% static 'images/notification-send-animation.png' %}" alt="" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="areainput">
+      <div class="areainput-title">
+        <h1>Bildiriş bölməsi</h1>
+      </div>
+      <div class="area-main">
+        <textarea placeholder="Bildir..." id="notificationMessage"></textarea>
+      </div>
+      <div class="area-button">
+        <button class="send-btn" id="sendNotificationBtn">Göndər</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'scripts/notification.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

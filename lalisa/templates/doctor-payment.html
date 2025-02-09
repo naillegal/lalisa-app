@@ -1,0 +1,235 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<section id="slot">
+  <div class="slot-title d-flex justify-content-between">
+    <div>
+      <h4>Həkim ödənişi</h4>
+    </div>
+  </div>
+  
+  <div class="d-flex gap-1 doctor-payment-calculate">
+    <div class="payment-calculate">
+      <div class="profile-wrapper">
+        <div class="payment-calculate-change-doctor">
+          <img src="{% static 'images/payment-calculate-change-doctor.png' %}" alt="" />
+        </div>
+        <div class="profile-image">
+          {% if doctor and doctor.image %}
+            <img src="{{ doctor.image.url }}" alt="Doctor Image" />
+          {% else %}
+            <img src="{% static 'images/user-default.jpg' %}" alt="Doctor Default" />
+          {% endif %}
+        </div>
+        <div class="profile-info">
+          {% if doctor %}
+            <h2 class="profile-name">{{ doctor.first_name }} {{ doctor.last_name }}</h2>
+            <p class="profile-specialty">{{ doctor.specialty|default:"-" }}</p>
+          {% else %}
+            <h2 class="profile-name">Heç bir həkim yoxdur</h2>
+            <p class="profile-specialty">---</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <form id="date-filter-form" method="get" class="date-inputs d-flex justify-content-center gap-2">
+        <div>
+          <label for="start-date">Başlama tarixi</label>
+          <br />
+          <input type="date" id="start-date" name="start_date" value="{{ start_date_str }}" />
+        </div>
+        <div>
+          <label for="end-date">Bitmə tarixi</label>
+          <br />
+          <input type="date" id="end-date" name="end_date" value="{{ end_date_str }}" />
+        </div>
+        {% if doctor %}
+          <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+        {% endif %}
+      </form>
+
+      <div class="form-group">
+        <label for="avans-input">Avans</label>
+        <input type="text" id="avans-input" placeholder="Avans daxil edin" />
+      </div>
+
+      <div class="calculate-btn">
+        <button id="calculate-btn">Hesabla</button>
+      </div>
+
+      <div class="percentage-degree">
+        <img src="{% static 'images/faiz-derecesi-banner.png' %}" alt="" />
+      </div>
+      <div class="constantly-cost">
+        <img src="{% static 'images/daimi-xerc-banner.png' %}" alt="" />
+      </div>
+    </div>
+
+    <div class="doctor-payment-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Sıra</th>
+            <th>Ad</th>
+            <th>Xidmət</th>
+            <th>Qiymət</th>
+            <th>Tarix</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if reservations %}
+            {% for reservation in reservations %}
+            <tr>
+              <td>
+                {{ forloop.counter }}
+              </td>
+              <td>
+                <div class="user-info d-flex align-items-center">
+                  {% if reservation.user and reservation.user.image %}
+                    <img src="{{ reservation.user.image.url }}" alt="User" />
+                  {% else %}
+                    <img src="{% static 'images/user-default.jpg' %}" alt="User Default" />
+                  {% endif %}
+                  <span>
+                    {% if reservation.user %}
+                      {{ reservation.user.first_name }} {{ reservation.user.last_name }}
+                    {% else %}
+                      {{ reservation.full_name|default:"Anonim" }}
+                    {% endif %}
+                  </span>
+                </div>
+              </td>
+              <td>
+                {% for srv in reservation.services.all %}
+                  <div>{{ srv.name }}</div>
+                {% endfor %}
+              </td>
+              <td>
+                {{ reservation.total_payments }}₼
+              </td>
+              <td>
+                {% if reservation.last_payment_date %}
+                  {{ reservation.last_payment_date|date:"d/m/Y" }}
+                {% else %}
+                  --
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+
+      <div class="pagination-doctor-payment">
+        {% if page_obj and page_obj.has_other_pages %}
+        <div class="pagination-buttons">
+          {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}">
+              <button>&laquo;</button>
+            </a>
+          {% else %}
+            <button disabled>&laquo;</button>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+              <a href="?page={{ num }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}">
+                <button class="active">{{ num }}</button>
+              </a>
+            {% else %}
+              <a href="?page={{ num }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}">
+                <button>{{ num }}</button>
+              </a>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}">
+              <button>&raquo;</button>
+            </a>
+          {% else %}
+            <button disabled>&raquo;</button>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="doctor-payment-calculate-popup">
+    <div class="close-doctor-payment-calculate-popup-btn">
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <div class="doctor-payment-calculate-popup-middle">
+      <h4 class="text-center">Hesablama</h4>
+      <h6>
+        Seçdiyiniz filterlərə əsasən ödəniş 
+        <span id="calculated-amount">0</span> manatdır.
+      </h6>
+    </div>
+    <div class="doctor-payment-calculate-popup-btns d-flex justify-content-center gap-5">
+      <button class="doctor-payment-calculate-popup-close">Çıxış</button>
+      <button class="doctor-payment-calculate-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+
+  <div class="percentage-degree-popup">
+    <div class="close-percentage-degree-popup-btn d-flex justify-content-between">
+      <h5>Faiz dərəcəsi</h5>
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <hr />
+    <div class="percentage-degree-popup-middle" id="percentage-degree-list">
+    </div>
+    <div class="percentage-degree-popup-btns d-flex justify-content-center gap-5">
+      <button class="percentage-degree-popup-close">Çıxış</button>
+      <button class="percentage-degree-popup-confirm">Təsdiq et</button>
+    </div>
+  </div>
+
+  <div class="constantly-cost-popup">
+    <div class="close-constantly-cost-popup-btn d-flex justify-content-between">
+      <h5>Daimi xərc</h5>
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <hr />
+    <div class="constantly-cost-popup-middle">
+      <div class="form-group">
+        <input type="text" id="constant-cost-input" placeholder="Daimi xərci daxil edin" />
+        <button class="apply-btn" id="constant-cost-apply-btn">Tətbiq et</button>
+      </div>
+    </div>
+    <div class="constantly-cost-popup-btns d-flex justify-content-center gap-5">
+      <button class="constantly-cost-popup-close">Çıxış</button>
+    </div>
+  </div>
+
+  <div class="doctor-payment-change-doctor-popup">
+    <div class="close-doctor-payment-change-doctor-popup-btn d-flex justify-content-between">
+      <h5>Həkim seçin</h5>
+      <i class="fa-solid fa-xmark"></i>
+    </div>
+    <hr />
+    <div class="doctor-payment-change-doctor-popup-middle">
+      <div class="search-box d-flex align-items-center">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="search" id="doctor-search" placeholder="Axtarış" />
+      </div>
+      <hr />
+      <div id="doctor-list-container">
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="{% static 'scripts/doctor-payment.js' %}"></script>
+<script src="{% static 'scripts/calendar.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

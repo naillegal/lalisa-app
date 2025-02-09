@@ -1,0 +1,631 @@
+{% extends 'layout.html' %} {% load static %} {% block main %}
+
+<section id="slot">
+  <div class="treatments-upside">
+    <div
+      class="title-and-add-treatments d-flex justify-content-between align-items-center"
+    >
+      <div>
+        <h4>Müalicə prosesləri</h4>
+      </div>
+      <div class="add-treatments">
+        <button class="add-treatment">
+          <i class="fa-solid fa-plus"></i>Müalicə əlavə et
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatments">
+    <div class="container-fluid">
+      <div class="row row-gap-4">
+        {% for t in treatments %}
+    <div class="col-lg-3 col-md-4 col-6">
+      <div class="treatments-box">
+        <div class="d-flex justify-content-end">
+          <i class="fa-solid fa-xmark treatment-delete-icon" data-treatment-id="{{ t.id }}"></i>
+        </div>
+        <div class="d-flex justify-content-center">
+          <img src="{% static 'images/treatment-box-heart-icon.png' %}" alt="" />
+        </div>
+        <hr />
+        <div class="treatments-box-content">
+          <h6 class="treatment-details-trigger" data-treatment-id="{{ t.id }}">
+            {{ t.service.name }}
+          </h6>
+          <p>Müalicəsi</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+      </div>
+    </div>
+    <div class="treatment-delete-warning-popup">
+      <div class="close-treatment-delete-warning-popup-btn">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <div class="treatment-delete-warning-popup-middle">
+        <h6>Bu müalicəni silmək istədiyinizə əminsiniz?</h6>
+      </div>
+      <div
+        class="treatment-delete-warning-popup-btns d-flex justify-content-center gap-5"
+      >
+        <button class="treatment-delete-warning-popup-close">Çıxış</button>
+        <button class="treatment-delete-warning-popup-confirm">
+          Təsdiq et
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="add-treatments-container">
+    <div class="add-treatments-title d-flex justify-content-between">
+      <h4>Müalicə əlavə et</h4>
+    </div>
+    <div class="add-treatments-form">
+      <div class="add-treatment-service-select">
+        <label for="add-treatment-service">Xidmət seçimi</label>
+        <div class="select-wrapper">
+          <select name="add-treatment-service" id="add-treatment-service" onchange="updateSelectLabel(this)">
+            <option value="" disabled selected hidden>Xidmət seçin</option>
+            {% for s in services %}
+              <option value="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
+          <i class="fa fa-chevron-down"></i>
+        </div>
+      </div>
+      <div class="treatment-name form-group">
+        <label for="treatment-name">Başlıq</label>
+        <br />
+        <input type="text" placeholder="Müalicə adını qeyd edin" />
+      </div>
+      <div class="treatment-description form-group">
+        <label for="treatment-description">Açıqlama</label>
+        <br />
+        <textarea rows="5" placeholder="Məlumat qeyd edin"></textarea>
+      </div>
+      <div class="add-clock-service-select">
+        <label for="add-clock-service">Vaxt seçimi</label>
+        <div class="select-wrapper">
+          <select
+            name="add-clock-service"
+            id="add-clock-service"
+            onchange="updateSelectLabel(this)"
+          >
+            <option value="" disabled selected hidden>
+              Xidməti aldıqdan sonra
+            </option>
+            <option value="1">1 saat sonra</option>
+            <option value="2">2 saat sonra</option>
+            <option value="3">3 saat sonra</option>
+            <option value="4">4 saat sonra</option>
+            <option value="5">5 saat sonra</option>
+            <option value="6">6 saat sonra</option>
+            <option value="7">7 saat sonra</option>
+            <option value="8">8 saat sonra</option>
+            <option value="9">9 saat sonra</option>
+            <option value="10">10 saat sonra</option>
+            <option value="11">11 saat sonra</option>
+            <option value="12">12 saat sonra</option>
+            <option value="13">13 saat sonra</option>
+            <option value="14">14 saat sonra</option>
+            <option value="15">15 saat sonra</option>
+            <option value="16">16 saat sonra</option>
+            <option value="17">17 saat sonra</option>
+            <option value="18">18 saat sonra</option>
+            <option value="19">19 saat sonra</option>
+            <option value="20">20 saat sonra</option>
+            <option value="21">21 saat sonra</option>
+            <option value="22">22 saat sonra</option>
+            <option value="23">23 saat sonra</option>
+            <option value="24">24 saat sonra</option>
+          </select>
+          <i class="fa fa-chevron-down"></i>
+        </div>
+      </div>
+      <div class="add-treatments-form-submit-button">
+        <button>Təsdiq et</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="treatment-process">
+    <div class="confirm-add-treatment">
+      <button class="confirm-add-treatment-btn">
+        <i class="fa-solid fa-check"></i>Müalicəni tamamla
+      </button>
+    </div>
+    <div class="delete-treatment">
+      <div class="treatment-show-title">
+        <h4>Xidmət 1</h4>
+      </div>
+      <button class="delete-treatment-btn">
+        Müalicəni sil <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+    <div class="treatment-process-upside d-flex gap-2 justify-content-center">
+      <div class="create-treatment element-1 d-flex">
+        <div class="treatment-box-first-clock">
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-2 d-flex">
+        <div class="broken-box">
+          <div class="broken-line">
+            -------<i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-3 d-flex">
+        <div class="broken-box">
+          <div class="broken-line">
+            -------<i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="treatment-process-underside d-flex gap-2 justify-content-center"
+    >
+      <div class="create-treatment element-6 d-flex">
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+        <div class="broken-box">
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div class="broken-line">
+            <i class="fa-solid fa-chevron-left"></i>---------
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-5 d-flex">
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+        <div class="broken-box">
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div class="broken-line">
+            <i class="fa-solid fa-chevron-left"></i>---------
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-4">
+        <div>
+          <div class="last-element-broken">
+            <div class="last-element-broken-line">
+              ---------<i
+                class="fa-solid fa-chevron-right last-element-arrow-icon"
+              ></i>
+            </div>
+            <div class="last-element-treatment-icon">
+              <i class="fa-solid fa-plus last-element-treatment-icon-i"></i>
+              <div class="selected-time-range">+3</div>
+            </div>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-process-upside d-flex gap-2 justify-content-center">
+      <div class="create-treatment element-7">
+        <div>
+          <div class="last-element-broken">
+            <div class="last-element-broken-line">
+              ---------<i
+                class="fa-solid fa-chevron-right last-element-arrow-icon"
+              ></i>
+            </div>
+            <div class="last-element-treatment-icon">
+              <i class="fa-solid fa-plus last-element-treatment-icon-i"></i>
+              <div class="selected-time-range">+3</div>
+            </div>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-8 d-flex">
+        <div class="broken-box">
+          <div class="broken-line">
+            -------<i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-9 d-flex">
+        <div class="broken-box">
+          <div class="broken-line">
+            -------<i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="treatment-process-underside d-flex gap-2 justify-content-center"
+    >
+      <div class="create-treatment element-12 d-flex">
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+        <div class="broken-box">
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div class="broken-line">
+            <i class="fa-solid fa-chevron-left"></i>---------
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-11 d-flex">
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+        <div class="broken-box">
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+          <div class="broken-line">
+            <i class="fa-solid fa-chevron-left"></i>---------
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-10">
+        <div>
+          <div class="last-element-broken">
+            <div class="last-element-broken-line">
+              ---------<i
+                class="fa-solid fa-chevron-right last-element-arrow-icon"
+              ></i>
+            </div>
+            <div class="last-element-treatment-icon">
+              <i class="fa-solid fa-plus last-element-treatment-icon-i"></i>
+              <div class="selected-time-range">+3</div>
+            </div>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-process-upside d-flex gap-2 justify-content-center">
+      <div class="create-treatment element-13">
+        <div>
+          <div class="last-element-broken">
+            <div class="last-element-broken-line">
+              ---------<i
+                class="fa-solid fa-chevron-right last-element-arrow-icon"
+              ></i>
+            </div>
+            <div class="last-element-treatment-icon">
+              <i class="fa-solid fa-plus last-element-treatment-icon-i"></i>
+              <div class="selected-time-range">+3</div>
+            </div>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-14 d-flex">
+        <div class="broken-box">
+          <div class="broken-line">
+            -------<i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="create-treatment element-15 d-flex">
+        <div class="broken-box">
+          <div class="broken-line">
+            -------<i class="fa-solid fa-chevron-right"></i>
+          </div>
+          <div class="treatment-icon">
+            <div class="selected-time-range">+3</div>
+            <i class="fa-solid fa-plus"></i>
+          </div>
+        </div>
+        <div class="treatment-box">
+          <div class="treatment-content">
+            <input
+              disabled
+              class="title-input"
+              type="text"
+              placeholder="Başlıq"
+            />
+            <br />
+            <hr style="padding: 0px; margin: 0px" />
+            <textarea
+              disabled
+              class="description-input"
+              placeholder="Açıqlama"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="treatment-content-popup">
+      <div class="treatment-content-popup-box">
+        <div class="treatment-content-popup-content">
+          <input
+            class="treatment-content-popup-title-input"
+            type="text"
+            placeholder="Başlıq"
+          />
+          <br />
+          <hr style="padding: 0px; margin: 0px" />
+          <textarea
+            class="treatment-content-popup-description-input"
+            placeholder="Açıqlama"
+          ></textarea>
+        </div>
+      </div>
+      <div
+        class="treatment-content-popup-btns d-flex justify-content-center gap-5"
+      >
+        <button class="treatment-content-popup-close">Çıxış</button>
+        <button class="treatment-content-popup-confirm">Təsdiq et</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %} {% block scripts %} {{ block.super }}
+<script src="{% static 'scripts/treatment.js' %}"></script>
+<script src="{% static 'scripts/doctor.js' %}"></script>
+<script src="{% static 'scripts/cashback.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/discount-code.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

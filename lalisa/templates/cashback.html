@@ -1,0 +1,294 @@
+{% extends 'layout.html' %}
+{% load static %}
+{% block main %}
+
+<section id="slot" data-current-tab="{{ currentTab }}">
+  <div class="history-visible">
+    <div class="history-cashback-table-upper">
+      <div class="title">Cashback</div>
+      <div
+        class="cashback-big-buttons d-flex align-items-center justify-content-around"
+      >
+        <button class="history-button history-active">
+          <i class="fa-solid fa-clock-rotate-left"></i>Tarixcə
+        </button>
+        <button class="users-button">
+          <i class="fa-solid fa-user-check"></i>İstifadəçilər
+        </button>
+        <button class="budget-button">
+          <i class="fa-solid fa-scale-balanced"></i>Balans idarəsi
+        </button>
+      </div>
+    </div>
+    <div class="history-middle-title">
+      <div class="title">Tarixcə</div>
+      <div class="d-flex gap-3">
+        <form method="get" class="d-flex">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="search_history" placeholder="Search" value="{{ search_history }}">
+          </div>
+          <div>
+            <button type="submit">Təsdiq et</button>
+          </div>
+          <input type="hidden" name="page_history" value="{{ history_cashbacks.number }}">
+          <input type="hidden" name="currentTab" value="history">
+        </form>
+      </div>
+    </div>
+    <div class="history-cashback-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th>Tarix</th>
+            <th>Balans</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in history_cashbacks %}
+          <tr>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <img src="{% static 'images/user-mini-pic.png' %}" alt="User" />
+                <span>{{ item.user_cashback.user.first_name }} {{ item.user_cashback.user.last_name }}</span>
+              </div>
+            </td>
+            <td>{{ item.created_at|date:"d.m.Y H:i" }}</td>
+            {% if item.change_amount >= 0 %}
+            <td class="added-value">+{{ item.change_amount }}₼</td>
+            {% else %}
+            <td class="removed-value">{{ item.change_amount }}₼</td>
+            {% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-history">
+      <div class="pagination-buttons">
+        {% if history_cashbacks.has_previous %}
+          <a href="?search_history={{ search_history }}&page_history={{ history_cashbacks.previous_page_number }}&currentTab=history">&laquo;</a>
+        {% else %}
+          <button disabled>&laquo;</button>
+        {% endif %}
+
+        {% for page_num in history_cashbacks.paginator.page_range %}
+          {% if page_num == history_cashbacks.number %}
+            <button class="active">{{ page_num }}</button>
+          {% else %}
+            <a href="?search_history={{ search_history }}&page_history={{ page_num }}&currentTab=history">{{ page_num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if history_cashbacks.has_next %}
+          <a href="?search_history={{ search_history }}&page_history={{ history_cashbacks.next_page_number }}&currentTab=history">&raquo;</a>
+        {% else %}
+          <button disabled>&raquo;</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="users-visible">
+    <div class="users-cashback-table-upper">
+      <div class="title">Cashback</div>
+      <div
+        class="cashback-big-buttons d-flex align-items-center justify-content-around"
+      >
+        <button class="history-button">
+          <i class="fa-solid fa-clock-rotate-left"></i>Tarixcə
+        </button>
+        <button class="users-button users-active">
+          <i class="fa-solid fa-user-check"></i>İstifadəçilər
+        </button>
+        <button class="budget-button">
+          <i class="fa-solid fa-scale-balanced"></i>Balans idarəsi
+        </button>
+      </div>
+    </div>
+    <div class="users-middle-title">
+      <div class="title">İstifadəçilər</div>
+      <div class="d-flex gap-3">
+        <form method="get" class="d-flex">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="search_users" placeholder="Search" value="{{ search_users }}">
+          </div>
+          <div>
+            <button type="submit">Təsdiq et</button>
+          </div>
+          <input type="hidden" name="page_users" value="{{ user_page.number }}">
+          <input type="hidden" name="currentTab" value="users">
+        </form>
+      </div>
+    </div>
+    <div class="users-cashback-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in user_page %}
+          <tr>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <img src="{% static 'images/user-mini-pic.png' %}" alt="User" />
+                <span>{{ user.first_name }} {{ user.last_name }}</span>
+              </div>
+            </td>
+            <td>
+              <button class="toggle-status {% if user.cashback.is_active %}active{% endif %}"
+                data-user-id="{{ user.id }}"
+                data-is-active="{{ user.cashback.is_active }}">
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-users">
+      <div class="pagination-buttons">
+        {% if user_page.has_previous %}
+          <a href="?search_users={{ search_users }}&page_users={{ user_page.previous_page_number }}&currentTab=users">&laquo;</a>
+        {% else %}
+          <button disabled>&laquo;</button>
+        {% endif %}
+
+        {% for page_num in user_page.paginator.page_range %}
+          {% if page_num == user_page.number %}
+            <button class="active">{{ page_num }}</button>
+          {% else %}
+            <a href="?search_users={{ search_users }}&page_users={{ page_num }}&currentTab=users">{{ page_num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if user_page.has_next %}
+          <a href="?search_users={{ search_users }}&page_users={{ user_page.next_page_number }}&currentTab=users">&raquo;</a>
+        {% else %}
+          <button disabled>&raquo;</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="budget-visible">
+    <div class="budget-cashback-table-upper">
+      <div class="title">Cashback</div>
+      <div
+        class="cashback-big-buttons d-flex align-items-center justify-content-around"
+      >
+        <button class="history-button">
+          <i class="fa-solid fa-clock-rotate-left"></i>Tarixcə
+        </button>
+        <button class="users-button">
+          <i class="fa-solid fa-user-check"></i>İstifadəçilər
+        </button>
+        <button class="budget-button budget-active">
+          <i class="fa-solid fa-scale-balanced"></i>Balans idarəsi
+        </button>
+      </div>
+    </div>
+    <div class="budget-middle-title">
+      <div class="title">Balans idarəsi</div>
+      <div class="d-flex gap-3">
+        <form method="get" class="d-flex">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" name="search_budget" placeholder="Search" value="{{ search_budget }}">
+          </div>
+          <div>
+            <button type="submit">Təsdiq et</button>
+          </div>
+          <input type="hidden" name="page_budget" value="{{ budget_page.number }}">
+          <input type="hidden" name="currentTab" value="budget">
+        </form>
+      </div>
+    </div>
+    <div class="budget-cashback-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad</th>
+            <th>Balans</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in budget_page %}
+          <tr>
+            <td>
+              <div class="user-info d-flex align-items-center">
+                <img src="{% static 'images/user-mini-pic.png' %}" alt="User" />
+                <span>{{ user.first_name }} {{ user.last_name }}</span>
+              </div>
+            </td>
+            <td class="added-value">
+              {{ user.cashback.balance|default:"0" }}₼
+              <i class="editicon fa-regular fa-pen-to-square" data-user-id="{{ user.id }}"></i>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination-budget">
+      <div class="pagination-buttons">
+        {% if budget_page.has_previous %}
+          <a href="?search_budget={{ search_budget }}&page_budget={{ budget_page.previous_page_number }}&currentTab=budget">&laquo;</a>
+        {% else %}
+          <button disabled>&laquo;</button>
+        {% endif %}
+
+        {% for page_num in budget_page.paginator.page_range %}
+          {% if page_num == budget_page.number %}
+            <button class="active">{{ page_num }}</button>
+          {% else %}
+            <a href="?search_budget={{ search_budget }}&page_budget={{ page_num }}&currentTab=budget">{{ page_num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if budget_page.has_next %}
+          <a href="?search_budget={{ search_budget }}&page_budget={{ budget_page.next_page_number }}&currentTab=budget">&raquo;</a>
+        {% else %}
+          <button disabled>&raquo;</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="change-total-budget-popup">
+      <div
+        class="close-change-total-budget-popup-btn d-flex justify-content-between"
+      >
+        <h5>Ümumi balans</h5>
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+      <hr />
+      <div class="change-total-budget-popup-middle">
+        <div class="form-group">
+          <input type="text" placeholder="Ümumi balansı daxil edin" />
+          <button class="apply-btn">Tətbiq et</button>
+        </div>
+      </div>
+      <div
+        class="change-total-budget-popup-btns d-flex justify-content-center gap-5"
+      >
+        <button class="change-total-budget-popup-close">Çıxış</button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'scripts/cashback.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/discount-code.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}

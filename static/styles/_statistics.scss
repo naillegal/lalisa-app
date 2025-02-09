@@ -1,0 +1,386 @@
+#slot {
+  .statistics-title {
+    padding: 10px;
+    h2 {
+      color: rgba(17, 24, 39, 1);
+      font-weight: 600;
+      font-size: 24px;
+    }
+  }
+  .search-and-filter-statistics {
+    width: 95%;
+    margin: auto;
+    background-color: #ffffff;
+    padding: 15px 20px;
+    padding-bottom: 25px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+    .filter {
+      .filter-select {
+        label {
+          color: rgba(84, 186, 79, 1);
+          font-size: 14px;
+          font-weight: 500;
+          padding-bottom: 10px;
+        }
+        select {
+          padding: 5px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          outline: none;
+        }
+      }
+      .date-inputs {
+        label {
+          color: rgba(84, 186, 79, 1);
+          font-size: 14px;
+          font-weight: 500;
+          padding-bottom: 10px;
+        }
+        input[type="date"] {
+          padding: 5px 10px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          outline: none;
+        }
+      }
+    }
+  }
+  .person-and-sales-statistics {
+    padding: 20px 0px;
+    .custom-container {
+      width: 95%;
+      margin: auto;
+      .box {
+        background-color: rgba(255, 255, 255, 1);
+        border-radius: 8px;
+        border: 1px solid rgba(209, 213, 219, 1);
+        padding: 25px 15px;
+        .blue-user {
+          background-color: rgba(72, 127, 255, 1);
+          padding: 15px 13px;
+          border-radius: 50%;
+          color: white;
+        }
+        .green-user {
+          background-color: rgba(69, 179, 105, 1);
+          padding: 15px 13px;
+          border-radius: 50%;
+          color: white;
+        }
+        .orange-percentage {
+          background-color: rgba(244, 148, 30, 1);
+          padding: 15px 16px;
+          border-radius: 50%;
+          color: white;
+        }
+        .new-users {
+          color: rgba(75, 85, 99, 1);
+          font-size: 14px;
+          font-weight: 500;
+        }
+        .users-count {
+          line-height: 0px;
+          color: rgba(17, 24, 39, 1);
+          font-size: 24px;
+          font-weight: 600;
+        }
+        .chart-box {
+          margin-right: 20px;
+          .blue-chart {
+            color: rgba(72, 127, 255, 1);
+            font-size: 50px;
+          }
+          .green-chart {
+            color: rgba(84, 186, 79, 1);
+            font-size: 50px;
+          }
+          .orange-chart {
+            color: rgba(244, 148, 30, 1);
+            font-size: 50px;
+          }
+        }
+        .increase-title {
+          color: rgba(75, 85, 99, 1);
+          font-size: 14px;
+        }
+        .increase-statistic {
+          background-color: rgba(69, 179, 105, 0.15);
+          color: rgba(69, 179, 105, 1);
+          border-radius: 6px;
+          width: 50px;
+          height: 25px;
+          text-align: center;
+          font-weight: 500;
+        }
+        .orange-increase-statistic {
+          background-color: rgba(239, 71, 112, 0.15);
+          color: rgba(239, 74, 0, 1);
+          border-radius: 6px;
+          width: 50px;
+          height: 25px;
+          text-align: center;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .statistics-middle {
+    padding: 25px;
+    .middle-1 {
+      width: 50%;
+      .income-growth {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        h6 {
+          margin-top: 5px;
+          font-size: 18px;
+          font-weight: 700;
+          color: rgba(17, 24, 39, 1);
+        }
+        .weekend-report {
+          color: rgba(75, 85, 99, 1);
+          font-size: 14px;
+          font-weight: 500;
+        }
+        // .green-income {
+        //   background-color: rgba(69, 179, 105, 0.15);
+        //   color: rgba(69, 179, 105, 1);
+        //   border-radius: 6px;
+        //   width: 50px;
+        //   height: 25px;
+        //   text-align: center;
+        //   font-weight: 500;
+        //   float: right;
+        // }
+        #incomeGrowthChart {
+          width: 100%;
+          height: 200px;
+        }
+        .view-options-middle-1 {
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          margin-bottom: 30px;
+          .view-option-middle-1 {
+            padding: 6px 12px;
+            border: 1px solid rgba(84, 186, 79, 1);
+            border-radius: 10px;
+            font-size: 14px;
+            color: rgba(84, 186, 79, 1);
+            cursor: pointer;
+            transition: 0.2s ease-in-out;
+            &:hover {
+              background-color: #f1f1f1;
+            }
+            &.active {
+              background-color: rgba(84, 186, 79, 1);
+              color: #ffffff;
+            }
+          }
+        }
+      }
+    }
+
+    .middle-2 {
+      width: 50%;
+      .customer-overview {
+        background-color: white;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+        height: 312px;
+        .title {
+          font-size: 18px;
+          font-weight: 700;
+          color: rgba(17, 24, 39, 1);
+        }
+        .round-chart {
+          position: relative;
+          #paymentMethodsChart {
+            width: 100%;
+            height: 130px;
+            display: block;
+            margin: 0 auto;
+            max-width: 220px;
+          }
+        }
+
+        .subtotal-box {
+          margin-top: 10px;
+          .subtotal-p {
+            color: rgba(75, 85, 99, 1);
+            font-size: 14px;
+            font-weight: 500;
+            margin-left: 8px;
+          }
+          .green-point {
+            background-color: rgba(69, 179, 105, 1);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-top: 3px;
+          }
+          .yellow-point {
+            background-color: rgba(255, 159, 41, 1);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-top: 3px;
+          }
+          .blue-point {
+            background-color: rgba(72, 127, 255, 1);
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-top: 3px;
+          }
+        }
+        .view-options-middle-2 {
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          margin-bottom: 30px;
+          .view-option-middle-2 {
+            padding: 6px 12px;
+            border: 1px solid rgba(84, 186, 79, 1);
+            border-radius: 10px;
+            font-size: 14px;
+            color: rgba(84, 186, 79, 1);
+            cursor: pointer;
+            transition: 0.2s ease-in-out;
+            &:hover {
+              background-color: #f1f1f1;
+            }
+            &.active {
+              background-color: rgba(84, 186, 79, 1);
+              color: #ffffff;
+            }
+          }
+        }
+      }
+    }
+  }
+  .statistics-under {
+    width: 99%;
+    margin: auto;
+    padding-bottom: 50px;
+    .statistics-container {
+      width: 96%;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      .statistics-header {
+        margin-bottom: 20px;
+        h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: rgba(17, 24, 39, 1);
+        }
+        p {
+          font-size: 14px;
+          color: rgba(75, 85, 99, 1);
+          margin-top: 5px;
+          font-weight: 500;
+        }
+        .custom-dropdown {
+          width: 250px;
+          position: relative;
+          font-family: "Poppins", sans-serif;
+          .dropdown-header {
+            background-color: white;
+            border: 1px solid rgba(209, 213, 219, 1);
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            span {
+              font-size: 14px;
+              color: rgba(17, 24, 39, 1);
+            }
+            i {
+              color: rgba(75, 85, 99, 1);
+            }
+          }
+          .dropdown-menu {
+            ul{
+              padding: 0px;
+              li{
+                padding: 10px;
+              }
+            }
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border: 1px solid rgba(209, 213, 219, 1);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            .dropdown-search {
+              display: flex;
+              align-items: center;
+              padding: 10px;
+              border-bottom: 1px solid rgba(209, 213, 219, 1);
+              i {
+                margin-right: 8px;
+                color: rgba(75, 85, 99, 1);
+              }
+              input {
+                flex: 1;
+                border: none;
+                outline: none;
+                font-size: 14px;
+                color: rgba(17, 24, 39, 1);
+              }
+            }
+            #dropdown-list {
+              list-style: none;
+              margin: 0;
+              padding: 0;
+              .dropdown-item {
+                display: flex;
+                align-items: center;
+                padding: 10px;
+                cursor: pointer;
+                transition: background-color 0.2s;
+                &:hover {
+                  background-color: rgba(209, 213, 219, 0.3);
+                }
+                img {
+                  border-radius: 50%;
+                  margin-right: 10px;
+                  width: 30px;
+                  height: 30px;
+                }
+                span {
+                  font-size: 14px;
+                  color: rgba(17, 24, 39, 1);
+                }
+              }
+            }
+          }
+          &.active .dropdown-menu {
+            display: block;
+          }
+        }
+      }
+      .statistics-chart {
+        canvas {
+          width: 100%;
+          height: 300px;
+        }
+      }
+    }
+  }
+}

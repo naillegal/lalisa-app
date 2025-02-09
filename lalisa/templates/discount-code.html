@@ -1,0 +1,179 @@
+{% extends 'layout.html' %} 
+{% load static %} 
+{% block main %}
+
+<section id="slot">
+  <div class="discount-upside-bg">
+    <div class="discount-relative">
+      <img src="{% static 'images/discount-bg.png' %}" alt="" />
+      <div>
+        <div class="discount-absolute">
+          <div class="d-flex">
+            <div>
+              <h2>Yeni Endirim<br />Kodu Yarat</h2>
+            </div>
+            <div class="absolute-button">
+              <button>LALİSA</button>
+            </div>
+          </div>
+          <p>
+            Müştəriləriniz üçün xüsusi endirimlər təklif etmək üçün yeni bir kod
+            yaradın. Endirim kodunu, məbləğini və etibarlılıq tarixini təyin
+            edin.
+          </p>
+          <div class="submit-code d-flex gap-4">
+            <div class="submit-code-inputs">
+              <input type="text" id="discount-code" placeholder="Endirim kodunu daxil et" />
+              <br />
+              <input type="number" id="discount-percent" placeholder="Endirim faizi" step="0.01" min="0" max="100" />
+          </div>
+            <div class="code-buttons">
+              <button class="submit" onclick="createDiscountCode()">Tətbiq et</button>
+              <div class="discount-code-percentage-select">
+                <div class="select-wrapper">
+                  <select
+                  name="discount-code-percentage" 
+                  id="discount-code-validity"
+                  onchange="updateSelectLabel(this)"
+                  >
+                    <option disabled selected hidden>Aktivlik müddəti</option>
+                    <option value="limitless">Limitsiz</option>
+                    <option value="1">1 Gün</option>
+                    <option value="2">2 Gün</option>
+                    <option value="3">3 Gün</option>
+                    <option value="4">4 Gün</option>
+                    <option value="5">5 Gün</option>
+                    <option value="6">6 Gün</option>
+                    <option value="7">7 Gün</option>
+                    <option value="8">8 Gün</option>
+                    <option value="9">9 Gün</option>
+                    <option value="10">10 Gün</option>
+                    <option value="11">11 Gün</option>
+                    <option value="12">12 Gün</option>
+                    <option value="13">13 Gün</option>
+                    <option value="14">14 Gün</option>
+                    <option value="15">15 Gün</option>
+                    <option value="16">16 Gün</option>
+                    <option value="17">17 Gün</option>
+                    <option value="18">18 Gün</option>
+                    <option value="19">19 Gün</option>
+                    <option value="20">20 Gün</option>
+                    <option value="21">21 Gün</option>
+                    <option value="22">22 Gün</option>
+                    <option value="23">23 Gün</option>
+                    <option value="24">24 Gün</option>
+                    <option value="25">25 Gün</option>
+                    <option value="26">26 Gün</option>
+                    <option value="27">27 Gün</option>
+                    <option value="28">28 Gün</option>
+                    <option value="29">29 Gün</option>
+                    <option value="30">30 Gün</option>
+                    <option value="31">31 Gün</option>
+                  </select>
+                  <i class="fa fa-chevron-down"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="discount-animation-absolute">
+          <img src="{% static 'images/discount-animation.png' %}" alt="" />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="discount-table-title">
+    <h3>Endirim Kodlarının İdarəsi</h3>
+  </div>
+  <div class="discount-table">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            Sıra
+          </th>
+          <th>Endirim kodu</th>
+          <th>İstifadə</th>
+          <th>Aktivlik müddəti</th>
+          <th>Endirim faizi</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for discount in discounts %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>
+            <div class="user-info d-flex align-items-center">
+                <span>{{ discount.code }}</span>
+            </div>
+        </td>
+        <td>{{ discount.uses }}</td>
+        <td>
+            {% if discount.validity == 'limitless' %}
+                Limitsiz
+            {% else %}
+                {{ discount.validity }} gün
+            {% endif %}
+        </td>
+        <td>{{ discount.discount_percent }}%</td>
+        <td>
+            <button 
+                class="toggle-status {% if discount.is_active %}active{% endif %}" 
+                onclick="toggleDiscountStatus({{ discount.id }})"
+            ></button>
+        </td>
+    </tr>
+    {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="pagination-discount-code">
+    <div class="pagination-buttons">
+      {% if discounts.has_previous %}
+      <a href="?page={{ discounts.previous_page_number }}&search={{ search_query }}">
+        <button>&laquo;</button>
+      </a>
+      {% else %}
+      <button disabled>&laquo;</button>
+      {% endif %}
+  
+      {% for pagenum in discounts.paginator.page_range %}
+        {% if discounts.number == pagenum %}
+        <button class="active">{{ pagenum }}</button>
+        {% else %}
+        <a href="?page={{ pagenum }}&search={{ search_query }}">
+          <button>{{ pagenum }}</button>
+        </a>
+        {% endif %}
+      {% endfor %}
+  
+      {% if discounts.has_next %}
+      <a href="?page={{ discounts.next_page_number }}&search={{ search_query }}">
+        <button>&raquo;</button>
+      </a>
+      {% else %}
+      <button disabled>&raquo;</button>
+      {% endif %}
+    </div>
+  </div>
+  <div class="activity-time-popup">
+    <div class="activity-time-popup-img">
+      <img src="{% static 'images/discount-popup-img.png' %}" alt="" />
+    </div>
+    <div class="activity-time-popup-middle">
+      <h5>Aktivlik müddəti</h5>
+    </div>
+
+    <div class="activity-time-popup-btns d-flex justify-content-center gap-5">
+      <button class="activity-time-popup-month">1-30 gün</button>
+      <button class="activity-time-popup-infinity">Limitsiz</button>
+    </div>
+  </div>
+</section>
+
+{% endblock %} {% block scripts %} {{ block.super }}
+<script src="{% static 'scripts/discount-code.js' %}"></script>
+<script src="{% static 'scripts/users.js' %}"></script>
+<script src="{% static 'scripts/main.js' %}"></script>
+{% endblock %}
