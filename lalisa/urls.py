@@ -4,7 +4,10 @@ from . import views
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+
 router = DefaultRouter()
+
+router.register(r'doctor-service', views.DoctorServiceViewSet, basename='doctor-service')
 
 schema_view = get_schema_view(
     openapi.Info(
