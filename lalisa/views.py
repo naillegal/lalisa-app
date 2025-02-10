@@ -909,7 +909,7 @@ def cashback_view(request):
             examples={
                 "application/json": {
                     "status": "ok",
-                    "is_active": true
+                    "is_active": True
                 }
             }
         ),
