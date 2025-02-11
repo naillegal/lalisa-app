@@ -1119,8 +1119,7 @@ class PaymentCreateAPIView(APIView):
         from django.db.models import Sum
         payments_sum = reservation.payments.aggregate(
             total=Sum('amount'))['total'] or 0
-        remaining_debt = total_price - float(payments_sum)
-
+        remaining_debt = total_price - payments_sum
         if amount > remaining_debt:
             return Response(
                 {"detail": "Ümumi ödəniş qalıq borcdan çox ola bilməz!"},
