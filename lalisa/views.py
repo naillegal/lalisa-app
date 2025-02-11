@@ -20,6 +20,9 @@ from django.contrib import messages
 from .firebase_messaging import send_push_notification
 from django.core.mail import send_mail
 from django.conf import settings
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
+from django.utils.decorators import method_decorator
 from .serializers import (
     UserSerializer,
     CategorySerializer,
@@ -113,6 +116,25 @@ def logout_view(request):
 
 
 def login_view(request):
+    moderator_id = request.session.get("moderator_id")
+    if moderator_id:
+        try:
+            moderator = Moderator.objects.get(id=moderator_id)
+            if moderator.status == "active":
+                first_page = get_first_true_role_page(moderator)
+                if first_page:
+                    return redirect(first_page)
+                else:
+                    messages.error(
+                        request, "Moderatorun heç bir səhifəyə icazəsi yoxdur.")
+                    return redirect("login_view")
+            else:
+                messages.error(
+                    request, "Moderator deaktivdir. Yenidən daxil olmağa çalışın.")
+                return render(request, "index.html")
+        except Moderator.DoesNotExist:
+            pass
+
     return render(request, "index.html")
 
 
@@ -165,9 +187,11 @@ class UserListCreateAPIView(generics.ListCreateAPIView):
 
         return response
 
+
 class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 
 class UserRegisterAPIView(generics.CreateAPIView):
     serializer_class = UserRegisterSerializer
@@ -181,9 +205,52 @@ class UserRegisterAPIView(generics.CreateAPIView):
         recipient_list = [user.email]
         send_mail(subject, message, from_email, recipient_list)
 
+
 class UserLoginAPIView(APIView):
     serializer_class = UserLoginSerializer
 
+    @swagger_auto_schema(
+        operation_summary="User login",
+        operation_description=(
+            "Bu endpoint user-in telefon nömrəsi və şifrəsi ilə daxil olmasına imkan verir."
+            "User aktiv deyilsə, xətalı cavab veriləcək."
+        ),
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["phone", "password"],
+            properties={
+                "phone": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="User-in telefon nömrəsi (məsələn: +994501234567)",
+                    example="+994501234567"
+                ),
+                "password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="User-in parolu",
+                    example="123456"
+                ),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Uğurlu login",
+                examples={
+                    "application/json": {
+                        "detail": "Login successful",
+                        "user_id": 10
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="Yanlış məlumat və ya user aktiv deyil",
+                examples={
+                    "application/json": {
+                        "detail": "Invalid credentials"
+                    }
+                }
+            ),
+        }
+    )
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -199,15 +266,67 @@ class UserLoginAPIView(APIView):
             return Response({"detail": "Login successful", "user_id": user.id})
         return Response(serializer.errors, status=400)
 
+
 class UserLogoutAPIView(APIView):
     def post(self, request):
         if 'user_id' in request.session:
             del request.session['user_id']
         return Response({"detail": "Logout successful"})
 
+
 class ActivateUserAPIView(APIView):
     serializer_class = ActivateUserSerializer
 
+    @swagger_auto_schema(
+        operation_summary="User-i aktivləşdirmək",
+        operation_description=(
+            "Bu endpoint user qeydiyyatdan keçdikdə göndərilən `otp_code` və `email` üzrə user-in "
+            "statusunu `active`-ə edir. Səhv `otp_code` gələn halda aktivasiya olunmayacaq."
+        ),
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email", "otp_code"],
+            properties={
+                "email": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format=openapi.FORMAT_EMAIL,
+                    description="User-in email ünvanı",
+                    example="example@gmail.com"
+                ),
+                "otp_code": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="User-in SMS/Email vasitəsilə aldığı OTP kodu",
+                    example="123456"
+                ),
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Uğurlu cavab",
+                examples={
+                    "application/json": {
+                        "detail": "User activated successfully"
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="OTP və ya digər məlumat səhvdir",
+                examples={
+                    "application/json": {
+                        "detail": "Invalid OTP code"
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Belə user tapılmadı",
+                examples={
+                    "application/json": {
+                        "detail": "User not found"
+                    }
+                }
+            ),
+        }
+    )
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -219,7 +338,7 @@ class ActivateUserAPIView(APIView):
                 return Response({"detail": "User not found"}, status=404)
             if user.otp_code == otp_code:
                 user.status = 'active'
-                user.otp_code = None  
+                user.otp_code = None
                 user.save()
                 return Response({"detail": "User activated successfully"})
             else:
@@ -236,6 +355,47 @@ def services_view(request):
     return render(request, "services.html", context)
 
 
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    operation_summary="Yeni kateqoriya yaratmaq",
+    operation_description="Bu endpoint ilə yeni bir kateqoriya yarada bilərsiniz. `name` sahəsi məcburidir, `image` optional-dır.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=["name"],
+        properties={
+            "name": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="Kateqoriyanın adı (məsələn: 'Kosmetologiya')",
+                example="Kosmetologiya"
+            ),
+            "image": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                format=openapi.FORMAT_BINARY,
+                description="Kateqoriyaya aid şəkil (optional). Backend file upload qəbul edə bilər.",
+                example=None
+            ),
+        }
+    ),
+    responses={
+        201: openapi.Response(
+            description="Kateqoriya uğurla yaradıldı",
+            examples={
+                "application/json": {
+                    "id": 1,
+                    "name": "Kosmetologiya",
+                    "image": "http://example.com/media/category_image.jpg"
+                }
+            }
+        ),
+        400: openapi.Response(
+            description="Yanlış məlumat",
+            examples={
+                "application/json": {
+                    "detail": "Bad Request"
+                }
+            }
+        ),
+    }
+))
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
     queryset = Category.objects.all().order_by('-created_at')
     serializer_class = CategorySerializer
@@ -458,6 +618,69 @@ def treatment_view(request):
     return render(request, 'treatment.html', context)
 
 
+@method_decorator(name='post', decorator=swagger_auto_schema(
+    operation_summary="Yeni müalicə yaratmaq",
+    operation_description=(
+        "Bu endpoint ilə yeni müalicə yaradıla bilər. `service` ID-sini və `steps` array-ni düzgün daxil etmək lazımdır."
+    ),
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=["service", "steps"],
+        properties={
+            "service": openapi.Schema(
+                type=openapi.TYPE_INTEGER,
+                description="Müalicənin aid olduğu service-in ID-si",
+                example=1
+            ),
+            "steps": openapi.Schema(
+                type=openapi.TYPE_ARRAY,
+                items=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "title": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            example="Prosesə hazırlıq"
+                        ),
+                        "description": openapi.Schema(
+                            type=openapi.TYPE_STRING,
+                            example="İlk addımda pasiyentin dərisinin dezinfeksiyası aparılır"
+                        ),
+                        "time_offset": openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            example=20
+                        )
+                    }
+                )
+            ),
+        }
+    ),
+    responses={
+        201: openapi.Response(
+            description="Müalicə uğurla yaradıldı",
+            examples={
+                "application/json": {
+                    "id": 5,
+                    "service": 1,
+                    "steps": [
+                        {
+                            "title": "Prosesə hazırlıq",
+                            "description": "İlk addımda pasiyentin dərisinin dezinfeksiyası aparılır",
+                            "time_offset": 20
+                        }
+                    ]
+                }
+            }
+        ),
+        400: openapi.Response(
+            description="Yanlış məlumat",
+            examples={
+                "application/json": {
+                    "detail": "Bad Request"
+                }
+            }
+        ),
+    }
+))
 class TreatmentListCreateAPIView(generics.ListCreateAPIView):
     queryset = Treatment.objects.all().order_by('-id')
     serializer_class = TreatmentSerializer
@@ -680,6 +903,33 @@ def cashback_view(request):
     return render(request, "cashback.html", context)
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_summary="User-in cashback statusunu dəyişdirmək (aktiv/deaktiv)",
+    operation_description=(
+        "Bu endpoint user-in mövcud cashback statusunu dəyişdirir: "
+        "əgər `is_active=True` idisə `False` olur."
+    ),
+    responses={
+        200: openapi.Response(
+            description="Status uğurla dəyişdirildi",
+            examples={
+                "application/json": {
+                    "status": "ok",
+                    "is_active": True
+                }
+            }
+        ),
+        404: openapi.Response(
+            description="UserCashback tapılmadı",
+            examples={
+                "application/json": {
+                    "error": "UserCashback not found"
+                }
+            }
+        ),
+    }
+)
 @api_view(['POST'])
 def toggle_cashback_status(request, user_id):
     try:
@@ -691,6 +941,50 @@ def toggle_cashback_status(request, user_id):
         return Response({'error': 'UserCashback not found'}, status=404)
 
 
+@swagger_auto_schema(
+    method='post',
+    operation_summary="User-in cashback balansını yeniləmək",
+    operation_description="Bu endpoint vasitəsilə user-in cashback balansının dəyəri dəyişdirilir.",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        required=["balance"],
+        properties={
+            "balance": openapi.Schema(
+                type=openapi.TYPE_NUMBER,
+                description="Yeni cashback dəyəri (məsələn: 120)",
+                example=100
+            )
+        }
+    ),
+    responses={
+        200: openapi.Response(
+            description="Balans uğurla yeniləndi",
+            examples={
+                "application/json": {
+                    "status": "ok",
+                    "new_balance": 150,
+                    "changed_amount": 50
+                }
+            }
+        ),
+        404: openapi.Response(
+            description="Belə bir istifadəçi üçün Cashback qeydi tapılmadı",
+            examples={
+                "application/json": {
+                    "error": "UserCashback not found"
+                }
+            }
+        ),
+        400: openapi.Response(
+            description="Düzgün balans verilməyib",
+            examples={
+                "application/json": {
+                    "error": "No balance provided"
+                }
+            }
+        ),
+    }
+)
 @api_view(['POST'])
 def update_cashback_balance(request, user_id):
     balance = request.data.get('balance', None)
@@ -825,7 +1119,8 @@ class PaymentCreateAPIView(APIView):
         from django.db.models import Sum
         payments_sum = reservation.payments.aggregate(
             total=Sum('amount'))['total'] or 0
-        remaining_debt = total_price - payments_sum
+        remaining_debt = total_price - float(payments_sum)
+
         if amount > remaining_debt:
             return Response(
                 {"detail": "Ümumi ödəniş qalıq borcdan çox ola bilməz!"},
