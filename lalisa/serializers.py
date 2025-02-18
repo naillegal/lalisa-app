@@ -332,20 +332,39 @@ class UserCashbackSerializer(serializers.ModelSerializer):
 
     def get_user_full_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
-
+    
 
 class CashbackHistorySerializer(serializers.ModelSerializer):
     user_full_name = serializers.SerializerMethodField()
+    action = serializers.SerializerMethodField()  
 
     class Meta:
         model = CashbackHistory
-        fields = ['id', 'user_cashback', 'change_amount',
-                  'created_at', 'user_full_name']
+        fields = ['id', 'user_cashback', 'change_amount', 'created_at', 'user_full_name', 'action']
         read_only_fields = ['created_at', 'user_cashback']
 
     def get_user_full_name(self, obj):
         return f"{obj.user_cashback.user.first_name} {obj.user_cashback.user.last_name}"
 
+    def get_action(self, obj):
+        if obj.change_amount > 0:
+            return "Hesaba əlavə olundu"
+        elif obj.change_amount < 0:
+            return "Hesabdan silindi"
+        else:
+            return "none"
+        
+
+class UserCashbackDetailSerializer(serializers.ModelSerializer):
+    user_full_name = serializers.SerializerMethodField()
+    histories = CashbackHistorySerializer(many=True, read_only=True)  
+
+    class Meta:
+        model = UserCashback
+        fields = ['id', 'user', 'user_full_name', 'balance', 'is_active', 'created_at', 'histories']
+
+    def get_user_full_name(self, obj):
+        return f"{obj.user.first_name} {obj.user.last_name}"
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -430,3 +449,18 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = ['id', 'message', 'recipients', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+class ResetPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp_code = serializers.CharField(max_length=6)
+    new_password = serializers.CharField(min_length=6, write_only=True)
+    confirm_password = serializers.CharField(min_length=6, write_only=True)
+
+    def validate(self, attrs):
+        if attrs['new_password'] != attrs['confirm_password']:
+            raise serializers.ValidationError("Şifrələr uyğun deyil.")
+        return attrs

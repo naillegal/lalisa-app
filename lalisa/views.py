@@ -10,6 +10,7 @@ from decimal import Decimal
 from django.db.models.signals import pre_delete, post_delete
 from django.dispatch import receiver
 import datetime
+import random
 from django.utils import timezone
 import openpyxl
 from openpyxl.utils import get_column_letter
@@ -44,6 +45,11 @@ from .serializers import (
     UserRegisterSerializer,
     UserLoginSerializer,
     ActivateUserSerializer,
+    UserCashbackSerializer,
+    UserCashbackDetailSerializer,
+    CashbackHistorySerializer,
+    ForgotPasswordSerializer,
+    ResetPasswordSerializer,
 )
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission,
                      LaserUsage, Treatment, DiscountCode, DiscountBanner,
@@ -421,6 +427,32 @@ class ServiceListCreateAPIView(generics.ListCreateAPIView):
 class ServiceRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
+
+
+class ServiceFilterAPIView(generics.ListAPIView):
+    serializer_class = ServiceSerializer
+
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'name',
+                openapi.IN_QUERY,
+                description="Xidmətin adı (məsələn: 'Lazer epilyasiya'). Oxşar yazı daxil edildikdə belə uyğun nəticələr qaytarılacaq.",
+                type=openapi.TYPE_STRING,
+                example="Lazer epilyasiya"
+            )
+        ],
+        responses={200: ServiceSerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        name = self.request.query_params.get('name', None)
+        queryset = Service.objects.all()
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+        return queryset
 
 
 @moderator_role_required('can_view_doctors')
@@ -1017,6 +1049,27 @@ def update_cashback_balance(request, user_id):
         'new_balance': user_cb.balance,
         'changed_amount': diff
     })
+
+
+class UserCashbackListAPIView(generics.ListAPIView):
+    queryset = UserCashback.objects.all()
+    serializer_class = UserCashbackSerializer
+
+
+class UserCashbackDetailAPIView(generics.RetrieveAPIView):
+    queryset = UserCashback.objects.all()
+    serializer_class = UserCashbackDetailSerializer
+    lookup_field = 'user_id'
+    lookup_url_kwarg = 'user_id'
+
+
+class CashbackHistoryListAPIView(generics.ListAPIView):
+    queryset = CashbackHistory.objects.all().order_by('-created_at')
+    serializer_class = CashbackHistorySerializer
+
+    def get_object(self):
+        user_id = self.kwargs['user_id']
+        return get_object_or_404(UserCashback, user__id=user_id)
 
 
 @moderator_role_required('can_view_payment_acceptance')
@@ -1892,3 +1945,139 @@ def update_firebase_token(request):
     user.firebase_token = new_token
     user.save()
     return Response({"detail": "Firebase token yeniləndi."}, status=200)
+
+
+class ForgotPasswordAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Şifrəni unutdum ilə OTP kod göndərilməsi",
+        operation_description="User emailini daxil edir və email mövcuddursa, sistem emailə 6 rəqəmli OTP kod göndərir.",
+        request_body=ForgotPasswordSerializer,
+        responses={
+            200: openapi.Response(
+                description="OTP kod emailə göndərildi",
+                examples={
+                    "application/json": {
+                        "detail": "OTP kod email-ə göndərildi."
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Email tapılmadı",
+                examples={
+                    "application/json": {
+                        "detail": "Bu emailə uyğun istifadəçi tapılmadı."
+                    }
+                }
+            ),
+        }
+    )
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response(
+                {"detail": "Bu emailə uyğun istifadəçi tapılmadı."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        otp_code = str(random.randint(100000, 999999))
+        user.otp_code = otp_code
+        user.save()
+
+        subject = "Şifrəni Yenilə - OTP Kodu"
+        message = f"Sizin OTP kodunuz: {otp_code}\nBu kodu heç kimlə paylaşmayın."
+        from_email = settings.DEFAULT_FROM_EMAIL
+        recipient_list = [email]
+        send_mail(subject, message, from_email, recipient_list)
+
+        return Response({"detail": "OTP kod email-ə göndərildi."}, status=status.HTTP_200_OK)
+
+
+class ResetPasswordAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Yeni Şifrə Təyin Et",
+        operation_description="User, email və OTP kodu vasitəsilə yeni şifrəsini təyin edir. Şifrə və şifrə təsdiqi uyğun olmalıdır.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email", "otp_code", "new_password", "confirm_password"],
+            properties={
+                "email": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format="email",
+                    description="İstifadəçinin email ünvanı",
+                    example="user@example.com"
+                ),
+                "otp_code": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Göndərilmiş 6 rəqəmli OTP kodu",
+                    example="123456"
+                ),
+                "new_password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Yeni şifrə",
+                    example="newpass123"
+                ),
+                "confirm_password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Yeni şifrənin təsdiqi",
+                    example="newpass123"
+                ),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Şifrə uğurla yeniləndi",
+                examples={
+                    "application/json": {
+                        "detail": "Şifrə uğurla yeniləndi."
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="OTP kod yanlışdır və ya şifrələr uyğun deyil",
+                examples={
+                    "application/json": {
+                        "otp_code": ["Bu sahə düzgün deyil."],
+                        "new_password": ["Bu sahə düzgün deyil."],
+                        "confirm_password": ["Bu sahə düzgün deyil."]
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Emailə uyğun istifadəçi tapılmadı",
+                examples={
+                    "application/json": {
+                        "detail": "Email yanlışdır."
+                    }
+                }
+            )
+        }
+    )
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+        otp_code = serializer.validated_data['otp_code']
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "Email yanlışdır."},
+                            status=status.HTTP_404_NOT_FOUND)
+
+        if user.otp_code != otp_code:
+            return Response({"detail": "OTP kod yanlışdır."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        user.password = new_password
+        user.otp_code = None
+        user.save()
+
+        return Response({"detail": "Şifrə uğurla yeniləndi."}, status=status.HTTP_200_OK)
