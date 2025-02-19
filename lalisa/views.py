@@ -2081,3 +2081,192 @@ class ResetPasswordAPIView(APIView):
         user.save()
 
         return Response({"detail": "Şifrə uğurla yeniləndi."}, status=status.HTTP_200_OK)
+
+
+class AvailableDoctorsAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Seçilmiş tarix və saat intervalında uyğun həkimləri göstərir",
+        operation_description=(
+            "Bu endpoint, sorğuda göndərilən xidmətlər, tarix və saat intervalına əsaslanaraq, "
+            "həmin şərtlərə uyğun və aktiv olan həkimləri filtrləyir. Parametrlər ayrıca da verilə bilər.\n\n"
+            "Misal:\n"
+            "  - Sadəcə services: `/api/available-doctors/?services=1,2,3`\n"
+            "  - Sadəcə date: `/api/available-doctors/?date=2025-02-19`\n"
+            "  - Services və date: `/api/available-doctors/?services=1,2&date=2025-02-19`\n"
+            "  - Services, date, start_time və end_time: "
+            "`/api/available-doctors/?services=1,2,3&date=2025-02-19&start_time=09:00&end_time=10:00`"
+        ),
+        manual_parameters=[
+            openapi.Parameter(
+                'services',
+                openapi.IN_QUERY,
+                description="Xidmətlərin ID-ləri (vergüllə ayrılmış). Məsələn: `services=1,2,3`",
+                type=openapi.TYPE_STRING,
+                required=False
+            ),
+            openapi.Parameter(
+                'date',
+                openapi.IN_QUERY,
+                description="Rezervasiya tarixi (YYYY-MM-DD formatında). Məsələn: `2025-02-19`",
+                type=openapi.TYPE_STRING,
+                required=False
+            ),
+            openapi.Parameter(
+                'start_time',
+                openapi.IN_QUERY,
+                description="Başlama saatı (HH:MM formatında). Məsələn: `09:00`",
+                type=openapi.TYPE_STRING,
+                required=False
+            ),
+            openapi.Parameter(
+                'end_time',
+                openapi.IN_QUERY,
+                description="Bitiş saatı (HH:MM formatında). Məsələn: `10:00`. Verilməzsə, başlama saatından 30 dəqiqə sonra qəbul edilir.",
+                type=openapi.TYPE_STRING,
+                required=False
+            ),
+        ],
+        responses={
+            200: openapi.Response(
+                description="Filtrlənmiş həkimlərin siyahısı",
+                examples={
+                    "application/json": [
+                        {
+                            "id": 1,
+                            "first_name": "Elvin",
+                            "last_name": "Hümbətov",
+                            "image": "",
+                            "specialty": "Dermatoloq",
+                            "rating": "4.5",
+                            "experience": "5 il",
+                            "about": "",
+                            "services": ["Lazer", "Krio"],
+                            "service_ids": [1, 2],
+                            "schedules": [],
+                            "permission": {}
+                        }
+                    ]
+                }
+            )
+        }
+    )
+    def get(self, request):
+        services_param = request.query_params.get('services', '')
+        date_str = request.query_params.get('date', '')
+        start_time_str = request.query_params.get('start_time', '')
+        end_time_str = request.query_params.get('end_time', '')
+
+        doctors_qs = Doctor.objects.all()
+
+        if services_param:
+            try:
+                service_ids = [int(sid.strip()) for sid in services_param.split(
+                    ',') if sid.strip().isdigit()]
+                for sid in service_ids:
+                    doctors_qs = doctors_qs.filter(services__id=sid)
+                doctors_qs = doctors_qs.distinct()
+            except Exception:
+                pass
+
+        if date_str:
+            try:
+                date_obj = datetime.datetime.strptime(
+                    date_str, '%Y-%m-%d').date()
+                weekday = date_obj.weekday()
+                day_of_week_val = weekday + 1
+                doctors_qs = doctors_qs.filter(
+                    schedules__day_of_week=day_of_week_val, schedules__is_active=True).distinct()
+            except ValueError:
+                date_obj = None
+        else:
+            date_obj = None
+
+        if start_time_str and date_obj:
+            try:
+                start_time_obj = datetime.datetime.strptime(
+                    start_time_str, '%H:%M').time()
+            except ValueError:
+                start_time_obj = None
+            if start_time_obj:
+                if end_time_str:
+                    try:
+                        end_time_obj = datetime.datetime.strptime(
+                            end_time_str, '%H:%M').time()
+                    except ValueError:
+                        end_time_obj = None
+                else:
+                    end_time_obj = (datetime.datetime.combine(
+                        date_obj, start_time_obj) + datetime.timedelta(minutes=30)).time()
+                if end_time_obj and datetime.datetime.combine(date_obj, end_time_obj) <= datetime.datetime.combine(date_obj, start_time_obj):
+                    return Response(
+                        {"detail": "Bitiş saatı başlama saatından əvvəl ola bilməz."},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+            else:
+                start_time_obj = None
+                end_time_obj = None
+        else:
+            start_time_obj = None
+            end_time_obj = None
+
+        eligible_doctors = []
+        for doc in doctors_qs:
+            if date_obj:
+                schedule = doc.schedules.filter(
+                    day_of_week=day_of_week_val, is_active=True).first()
+                if not schedule:
+                    continue
+                if start_time_obj and end_time_obj:
+                    if schedule.start_time > start_time_obj or schedule.end_time < end_time_obj:
+                        continue
+
+                perm = getattr(doc, 'permission', None)
+                permission_blocks = False
+                if perm and perm.permission_type != 'none':
+                    if perm.permission_type == 'date_range':
+                        if perm.start_date and perm.end_date and perm.start_date <= date_obj <= perm.end_date:
+                            permission_blocks = True
+                    elif perm.permission_type == 'time_range':
+                        if perm.specific_date and perm.specific_date == date_obj:
+                            if perm.start_time and perm.end_time and start_time_obj and end_time_obj:
+                                req_start_dt = datetime.datetime.combine(
+                                    date_obj, start_time_obj)
+                                req_end_dt = datetime.datetime.combine(
+                                    date_obj, end_time_obj)
+                                perm_start_dt = datetime.datetime.combine(
+                                    date_obj, perm.start_time)
+                                perm_end_dt = datetime.datetime.combine(
+                                    date_obj, perm.end_time)
+                                if req_start_dt < perm_end_dt and req_end_dt > perm_start_dt:
+                                    permission_blocks = True
+                            else:
+                                permission_blocks = True
+                if permission_blocks:
+                    continue
+
+                if start_time_obj and end_time_obj:
+                    existing_reservations = Reservation.objects.filter(
+                        doctor=doc, date=date_obj)
+                    conflict_found = False
+                    req_start_dt = datetime.datetime.combine(
+                        date_obj, start_time_obj)
+                    req_end_dt = datetime.datetime.combine(
+                        date_obj, end_time_obj)
+                    for res in existing_reservations:
+                        res_start = res.start_time
+                        res_end = res.end_time if res.end_time else (datetime.datetime.combine(
+                            date_obj, res.start_time) + datetime.timedelta(minutes=30)).time()
+                        res_start_dt = datetime.datetime.combine(
+                            date_obj, res_start)
+                        res_end_dt = datetime.datetime.combine(
+                            date_obj, res_end)
+                        if req_start_dt < res_end_dt and req_end_dt > res_start_dt:
+                            conflict_found = True
+                            break
+                    if conflict_found:
+                        continue
+
+            eligible_doctors.append(doc)
+
+        serializer = DoctorSerializer(eligible_doctors, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
