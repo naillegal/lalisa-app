@@ -1,4 +1,3 @@
-@charset "UTF-8";
 * {
   margin: 0;
   padding: 0;
@@ -1107,8 +1106,10 @@
   color: red;
 }
 #slot .curr-and-cal .calendar-add-reservation-popup .calendar-add-reservation-popup-middle {
+  padding: 0px 10px 30px 10px;
   overflow: auto;
   scrollbar-width: thin;
+  height: 500px;
 }
 #slot .curr-and-cal .calendar-add-reservation-popup .calendar-add-reservation-popup-middle .unregistered-user {
   display: none;
@@ -1143,10 +1144,10 @@
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 #slot .curr-and-cal .calendar-add-reservation-popup .calendar-add-reservation-popup-middle input[type=text] {
-  width: 510px !important;
+  width: 480px !important;
 }
 #slot .curr-and-cal .calendar-add-reservation-popup .calendar-add-reservation-popup-middle input[type=date] {
-  width: 510px !important;
+  width: 480px !important;
 }
 #slot .curr-and-cal .calendar-add-reservation-popup .calendar-add-reservation-popup-middle .form-group.d-flex {
   flex-direction: row;
@@ -1557,7 +1558,7 @@
   transform: translate(-50%, -50%);
   background-color: #fff;
   padding: 20px;
-  width: 550px;
+  width: 570px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   font-family: "Arial", sans-serif;
@@ -1606,9 +1607,10 @@
   width: 220px;
 }
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content {
-  height: 300px;
+  height: 250px;
   overflow: auto;
   scrollbar-width: thin;
+  padding-bottom: 30px;
 }
 @media (min-width: 1600px) {
   #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content {
@@ -1623,7 +1625,7 @@
 }
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-doctor .custom-select {
   position: relative;
-  width: 100%;
+  width: 500px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: Arial, sans-serif;
@@ -1718,7 +1720,7 @@
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-time .form-group input[type=text],
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-time .form-group input[type=date],
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-time .form-group input[type=time] {
-  width: 245px;
+  width: 220px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -1749,7 +1751,7 @@
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-date .form-group input[type=text],
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-date .form-group input[type=date],
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-date .form-group input[type=time] {
-  width: 510px;
+  width: 500px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -1769,7 +1771,7 @@
 }
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-service .custom-select {
   position: relative;
-  width: 100%;
+  width: 500px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: Arial, sans-serif;
@@ -1804,7 +1806,6 @@
   max-height: 200px;
   overflow-y: auto;
   z-index: 10;
-  /* Axtarış hissəsi eyni dizaynda */
 }
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-content .reserved-service .custom-select .dropdown .dropdown-search {
   display: flex;
@@ -1847,7 +1848,7 @@
   pointer-events: none;
 }
 #slot .curr-and-cal .calendar-reservation-user-info-popup .reservation-history-view-box {
-  height: 300px;
+  height: 250px;
   scrollbar-width: thin;
   overflow: auto;
   border: 1px solid rgba(0, 0, 0, 0.26);

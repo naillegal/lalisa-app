@@ -40,12 +40,14 @@ class ActivateUserSerializer(serializers.Serializer):
     otp_code = serializers.CharField(max_length=6)
 
 
+class ServiceNestedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Service
+        fields = ['id', 'name', 'price', 'procedure_duration', 'created_at']
+
+
 class CategorySerializer(serializers.ModelSerializer):
-    services = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='name'
-    )
+    services = ServiceNestedSerializer(many=True, read_only=True)
 
     class Meta:
         model = Category
@@ -332,15 +334,16 @@ class UserCashbackSerializer(serializers.ModelSerializer):
 
     def get_user_full_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
-    
+
 
 class CashbackHistorySerializer(serializers.ModelSerializer):
     user_full_name = serializers.SerializerMethodField()
-    action = serializers.SerializerMethodField()  
+    action = serializers.SerializerMethodField()
 
     class Meta:
         model = CashbackHistory
-        fields = ['id', 'user_cashback', 'change_amount', 'created_at', 'user_full_name', 'action']
+        fields = ['id', 'user_cashback', 'change_amount',
+                  'created_at', 'user_full_name', 'action']
         read_only_fields = ['created_at', 'user_cashback']
 
     def get_user_full_name(self, obj):
@@ -353,18 +356,20 @@ class CashbackHistorySerializer(serializers.ModelSerializer):
             return "Hesabdan silindi"
         else:
             return "none"
-        
+
 
 class UserCashbackDetailSerializer(serializers.ModelSerializer):
     user_full_name = serializers.SerializerMethodField()
-    histories = CashbackHistorySerializer(many=True, read_only=True)  
+    histories = CashbackHistorySerializer(many=True, read_only=True)
 
     class Meta:
         model = UserCashback
-        fields = ['id', 'user', 'user_full_name', 'balance', 'is_active', 'created_at', 'histories']
+        fields = ['id', 'user', 'user_full_name', 'balance',
+                  'is_active', 'created_at', 'histories']
 
     def get_user_full_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -453,6 +458,7 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
 
 class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()

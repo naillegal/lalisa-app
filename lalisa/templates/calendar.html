@@ -137,6 +137,7 @@
           <div class="form-group">
             <div>
               <label>Ad, Soyad</label>
+              <br/>
               <input type="text" id="unregisteredFullName" />
             </div>
           </div>
@@ -144,39 +145,6 @@
             <div>
               <label>Telefon nömrəsi</label>
               <input type="text" id="unregisteredPhone" />
-            </div>
-          </div>
-        </div>
-        <div class="form-group d-flex justify-content-center">
-          <div>
-            <label for="event-start-time-input">Başlama saatı</label>
-            <input type="time" id="reservationStartTime" />
-          </div>
-          <div>
-            <label for="event-end-time-input">Bitiş saatı</label>
-            <input type="time" id="reservationEndTime" />
-          </div>
-        </div>
-        <div class="form-group">
-          <div>
-            <label for="event-start-date-input">Təqvim</label>
-            <input type="date" id="reservationDate" />
-          </div>
-        </div>
-        <div class="calendar-add-reservation-popup-custom-select-doctor">
-          <label>Həkim seç</label>
-          <div class="custom-dropdown" id="doctorDropdown">
-            <div class="dropdown-header">
-              <span id="selected-doctor-option">Həkimin adı</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-menu">
-              <div class="dropdown-search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="doctor-search-input" placeholder="Axtarış" />
-              </div>
-              <ul id="doctor-dropdown-list">
-              </ul>
             </div>
           </div>
         </div>
@@ -193,6 +161,40 @@
                 <input type="text" id="service-search-input" placeholder="Axtarış" />
               </div>
               <ul id="service-dropdown-list"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div>
+            <label for="event-start-date-input">Təqvim</label>
+            <br/>
+            <input type="date" id="reservationDate" />
+          </div>
+        </div>
+        <div class="form-group d-flex justify-content-center">
+          <div>
+            <label for="event-start-time-input">Başlama saatı</label>
+            <input type="time" id="reservationStartTime" />
+          </div>
+          <div>
+            <label for="event-end-time-input">Bitiş saatı</label>
+            <input type="time" id="reservationEndTime" />
+          </div>
+        </div>
+        <div class="calendar-add-reservation-popup-custom-select-doctor">
+          <label>Həkim seç</label>
+          <div class="custom-dropdown" id="doctorDropdown">
+            <div class="dropdown-header">
+              <span id="selected-doctor-option">Həkimin adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-menu">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="doctor-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="doctor-dropdown-list">
+              </ul>
             </div>
           </div>
         </div>
@@ -237,6 +239,44 @@
       </div>
       <hr />
       <div class="reservation-content">
+        <div class="reserved-service">
+          <div class="reserved-service-lable">
+            <label>Xidmət seçimi</label>
+          </div>
+          <div class="custom-select" id="popupServiceSelect">
+            <div class="selected-option">
+              <span id="popupServiceName" data-service-ids="">Xidmət Adı</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="dropdown">
+              <div class="dropdown-search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="popup-service-search-input" placeholder="Axtarış" />
+              </div>
+              <ul id="popupServiceDropdownList"></ul>
+            </div>
+          </div>
+        </div>
+        <div class="reserved-date">
+          <div class="form-group">
+            <div>
+              <label for="event-start-date-input">Təqvim</label>
+              <input type="date" id="popupDate" />
+            </div>
+          </div>
+        </div>
+        <div class="reserved-time">
+          <div class="form-group">
+            <div>
+              <label for="event-start-time-input">Başlanğıc saatı</label>
+              <input type="time" id="popupStartTime" />
+            </div>
+            <div>
+              <label for="event-end-time-input">Bitiş saatı</label>
+              <input type="time" id="popupEndTime" />
+            </div>
+          </div>
+        </div>
         <div class="reserved-doctor">
           <div class="reserved-doctor-lable">
             <label>Həkim</label>
@@ -254,44 +294,6 @@
               </div>
               <ul id="popupDoctorDropdownList">
               </ul>
-            </div>
-          </div>
-        </div>
-        <div class="reserved-time">
-          <div class="form-group">
-            <div>
-              <label for="event-start-time-input">Başlanğıc saatı</label>
-              <input type="time" id="popupStartTime" />
-            </div>
-            <div>
-              <label for="event-end-time-input">Bitiş saatı</label>
-              <input type="time" id="popupEndTime" />
-            </div>
-          </div>
-        </div>
-        <div class="reserved-date">
-          <div class="form-group">
-            <div>
-              <label for="event-start-date-input">Təqvim</label>
-              <input type="date" id="popupDate" />
-            </div>
-          </div>
-        </div>
-        <div class="reserved-service">
-          <div class="reserved-service-lable">
-            <label>Xidmət seçimi</label>
-          </div>
-          <div class="custom-select" id="popupServiceSelect">
-            <div class="selected-option">
-              <span id="popupServiceName" data-service-ids="">Xidmət Adı</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </div>
-            <div class="dropdown">
-              <div class="dropdown-search">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="popup-service-search-input" placeholder="Axtarış" />
-              </div>
-              <ul id="popupServiceDropdownList"></ul>
             </div>
           </div>
         </div>

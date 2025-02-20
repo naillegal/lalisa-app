@@ -73,6 +73,145 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentView = "month";
   let currentDate = new Date();
 
+  async function fetchAvailableDoctors(
+    serviceIds = [],
+    dateValue = "",
+    startTime = "",
+    endTime = ""
+  ) {
+    try {
+      let url = "/api/available-doctors/?";
+      if (serviceIds.length > 0) {
+        url += `services=${serviceIds.join(",")}&`;
+      }
+      if (dateValue) {
+        url += `date=${dateValue}&`;
+      }
+      if (startTime) {
+        url += `start_time=${startTime}&`;
+      }
+      if (endTime) {
+        url += `end_time=${endTime}&`;
+      }
+      const response = await fetch(url);
+      if (!response.ok) {
+        console.error("Available Doctors API error", response.status);
+        return [];
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("fetchAvailableDoctors catch error", error);
+      return [];
+    }
+  }
+
+  function populateDoctorDropdown(
+    dropdownListElement,
+    docHeaderElement,
+    doctors
+  ) {
+    if (dropdownListElement) {
+      dropdownListElement.innerHTML = "";
+    }
+    if (docHeaderElement) {
+      docHeaderElement.innerText = "Həkimin adı";
+      docHeaderElement.removeAttribute("data-doctor-id");
+    }
+
+    doctors.forEach((doc) => {
+      const li = document.createElement("li");
+      li.classList.add("dropdown-item");
+      const docImage = doc.image
+        ? doc.image
+        : STATIC_URL + "images/mini-profile-picture.png";
+
+      li.innerHTML = `
+        <img src="${docImage}" alt="Həkim" />
+        <span>${doc.first_name} ${doc.last_name}</span>
+      `;
+      li.dataset.doctorId = doc.id;
+      li.addEventListener("click", (e) => {
+        e.stopPropagation();
+        if (docHeaderElement) {
+          docHeaderElement.innerText = `${doc.first_name} ${doc.last_name}`;
+          docHeaderElement.setAttribute("data-doctor-id", doc.id);
+        }
+        dropdownListElement
+          .closest(".custom-dropdown")
+          .classList.remove("open");
+      });
+      dropdownListElement.appendChild(li);
+    });
+  }
+
+  async function handleAddReservationPopupFormChange() {
+    const serviceDropdownList = document.getElementById(
+      "service-dropdown-list"
+    );
+    const serviceCheckboxes = serviceDropdownList
+      ? serviceDropdownList.querySelectorAll(".dropdown-checkbox")
+      : [];
+    let selectedServices = [];
+    serviceCheckboxes.forEach((chk) => {
+      if (chk.checked) {
+        selectedServices.push(Number(chk.value));
+      }
+    });
+
+    const dateValue = document.getElementById("reservationDate")?.value || "";
+    const startTimeValue =
+      document.getElementById("reservationStartTime")?.value || "";
+    const endTimeValue =
+      document.getElementById("reservationEndTime")?.value || "";
+
+    const doctors = await fetchAvailableDoctors(
+      selectedServices,
+      dateValue,
+      startTimeValue,
+      endTimeValue
+    );
+    const doctorDropdownList = document.getElementById("doctor-dropdown-list");
+    const doctorHeader = document.getElementById("selected-doctor-option");
+    populateDoctorDropdown(doctorDropdownList, doctorHeader, doctors);
+  }
+
+  async function handleUserInfoPopupFormChange() {
+    const popupServiceDropdownList = document.getElementById(
+      "popupServiceDropdownList"
+    );
+    const serviceCheckboxes = popupServiceDropdownList
+      ? popupServiceDropdownList.querySelectorAll(".dropdown-checkbox")
+      : [];
+    let selectedServices = [];
+    serviceCheckboxes.forEach((chk) => {
+      if (chk.checked) {
+        selectedServices.push(Number(chk.value));
+      }
+    });
+
+    const dateValue = document.getElementById("popupDate")?.value || "";
+    const startTimeValue =
+      document.getElementById("popupStartTime")?.value || "";
+    const endTimeValue = document.getElementById("popupEndTime")?.value || "";
+
+    const doctors = await fetchAvailableDoctors(
+      selectedServices,
+      dateValue,
+      startTimeValue,
+      endTimeValue
+    );
+    const popupDoctorDropdownList = document.getElementById(
+      "popupDoctorDropdownList"
+    );
+    const popupDoctorNameSpan = document.getElementById("popupDoctorName");
+    populateDoctorDropdown(
+      popupDoctorDropdownList,
+      popupDoctorNameSpan,
+      doctors
+    );
+  }
+
   async function loadInitialData() {
     try {
       const [
@@ -94,7 +233,6 @@ document.addEventListener("DOMContentLoaded", () => {
         reservationsData = await reservationsResponse.json();
 
       fillUserDropdown(usersData);
-      fillDoctorDropdown(doctorsData);
       fillServiceDropdown(servicesData);
 
       renderEventsOnCalendar(reservationsData);
@@ -194,18 +332,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function updateServiceDropdownForDoctor(selectedDoctor) {
-    if (!selectedDoctor) return;
-
-    const docServiceIds = selectedDoctor.service_ids || [];
-
-    const filteredServices = servicesData.filter((srv) =>
-      docServiceIds.includes(srv.id)
-    );
-
-    fillServiceDropdown(filteredServices);
-  }
-
   function fillDoctorDropdown(doctors, searchTerm = "") {
     const doctorDropdownList = document.getElementById("doctor-dropdown-list");
     if (doctorDropdownList) {
@@ -235,16 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
             .closest(".custom-dropdown")
             .classList.remove("open");
           headSpan.setAttribute("data-doctor-id", doc.id);
-
-          const serviceHeader = document.getElementById(
-            "selected-service-option"
-          );
-          if (serviceHeader) {
-            serviceHeader.innerText = "Xidmətin adı";
-            serviceHeader.removeAttribute("data-service-ids");
-          }
-
-          updateServiceDropdownForDoctor(doc);
         });
         doctorDropdownList.appendChild(li);
       });
@@ -278,17 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .closest(".custom-select")
             .classList.remove("open");
           docNameSpan.setAttribute("data-doctor-id", doc.id);
-
-          const popupServiceHeader =
-            document.getElementById("popupServiceName");
-          if (popupServiceHeader) {
-            popupServiceHeader.innerText = "Xidmətin adı";
-            popupServiceHeader.removeAttribute("data-service-ids");
-          }
-
-          updateServiceDropdownForDoctor(doc);
         });
-
         popupDoctorDropdownList.appendChild(li);
       });
     }
@@ -373,6 +479,8 @@ document.addEventListener("DOMContentLoaded", () => {
       headSpan.innerText = selectedNames.join(", ");
       headSpan.setAttribute("data-service-ids", selectedIds.join(","));
     }
+
+    handleAddReservationPopupFormChange();
   }
 
   function refreshPopupSelectedServicesText() {
@@ -398,6 +506,8 @@ document.addEventListener("DOMContentLoaded", () => {
       serviceSpan.innerText = selectedNames.join(", ");
       serviceSpan.setAttribute("data-service-ids", selectedIds.join(","));
     }
+
+    handleUserInfoPopupFormChange();
   }
 
   async function createReservation() {
@@ -416,6 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fullName = document.getElementById("unregisteredFullName").value.trim();
         phone = document.getElementById("unregisteredPhone").value.trim();
       }
+      
       const doctorId = document
         .getElementById("selected-doctor-option")
         .getAttribute("data-doctor-id");
@@ -423,10 +534,28 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("selected-service-option")
         .getAttribute("data-service-ids");
       const dateValue = document.getElementById("reservationDate").value;
-      const startTimeValue = document.getElementById(
-        "reservationStartTime"
-      ).value;
+      const startTimeValue = document.getElementById("reservationStartTime").value;
       const endTimeValue = document.getElementById("reservationEndTime").value;
+      
+      if (!dateValue || !startTimeValue) {
+        alert("Rezervasiya tarixi və başlama saatı daxil edilməlidir!");
+        return;
+      }
+      const reservationDateTime = new Date(dateValue + "T" + startTimeValue);
+      const now = new Date();
+      if (reservationDateTime < now) {
+        alert("Rezervasiya keçmiş tarix və saatla ola bilməz!");
+        return;
+      }
+      if (endTimeValue) {
+        const startTimeDate = new Date("1970-01-01T" + startTimeValue);
+        const endTimeDate = new Date("1970-01-01T" + endTimeValue);
+        if (endTimeDate <= startTimeDate) {
+          alert("Bitiş saatı, başlama saatından əvvəl ola bilməz!");
+          return;
+        }
+      }
+  
       if (!doctorId || !serviceIdsString || !dateValue || !startTimeValue) {
         alert("Bütün xanaları doldurun!");
         return;
@@ -457,6 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
         renderDoctorCards(doctorsData, reservationsData);
         loadEventsPageContent();
         alert("Rezervasiya uğurla yaradıldı!");
+        closeReservationPopup();
       } else {
         const errorData = await response.json();
         console.error("createReservation error:", errorData);
@@ -464,6 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("createReservation:", error);
+      alert("Xəta baş verdi!");
     }
   }
 
@@ -507,6 +638,8 @@ document.addEventListener("DOMContentLoaded", () => {
         renderEventsOnCalendar(reservationsData);
         renderDoctorCards(doctorsData, reservationsData);
         alert("Rezervasiya yeniləndi.");
+        calendarReservationUserInfoPopup.style.display = "none";
+        if (overlay) overlay.style.display = "none";
       } else {
         const err = await response.json();
         console.error("updateReservation error:", err);
@@ -514,6 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("updateReservation:", error);
+      alert("Xəta baş verdi!");
     }
   }
 
@@ -1489,7 +1623,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const popupSaveButton = document.getElementById("reservationConfirmBtn");
   popupSaveButton.addEventListener("click", async () => {
     await createReservation();
-    closeReservationPopup();
   });
   if (overlay) {
     overlay.addEventListener("click", (e) => {
@@ -1665,6 +1798,46 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
   initializeCustomDropdowns();
+
+  const reservationDateInput = document.getElementById("reservationDate");
+  const reservationStartTimeInput = document.getElementById(
+    "reservationStartTime"
+  );
+  const reservationEndTimeInput = document.getElementById("reservationEndTime");
+  if (reservationDateInput) {
+    reservationDateInput.addEventListener(
+      "change",
+      handleAddReservationPopupFormChange
+    );
+  }
+  if (reservationStartTimeInput) {
+    reservationStartTimeInput.addEventListener(
+      "change",
+      handleAddReservationPopupFormChange
+    );
+  }
+  if (reservationEndTimeInput) {
+    reservationEndTimeInput.addEventListener(
+      "change",
+      handleAddReservationPopupFormChange
+    );
+  }
+
+  const popupDateInput = document.getElementById("popupDate");
+  const popupStartTimeInput = document.getElementById("popupStartTime");
+  const popupEndTimeInput = document.getElementById("popupEndTime");
+  if (popupDateInput) {
+    popupDateInput.addEventListener("change", handleUserInfoPopupFormChange);
+  }
+  if (popupStartTimeInput) {
+    popupStartTimeInput.addEventListener(
+      "change",
+      handleUserInfoPopupFormChange
+    );
+  }
+  if (popupEndTimeInput) {
+    popupEndTimeInput.addEventListener("change", handleUserInfoPopupFormChange);
+  }
 
   loadInitialData();
 });
