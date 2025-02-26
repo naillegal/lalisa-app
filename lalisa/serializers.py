@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.pagination import PageNumberPagination
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission, LaserUsage, Treatment,
                      TreatmentStep, DiscountCode, DiscountBanner, MainBanner, Reservation, UserCashback, CashbackHistory,
                      Payment, DoctorService, Moderator, Notification)
@@ -358,9 +359,13 @@ class CashbackHistorySerializer(serializers.ModelSerializer):
             return "none"
 
 
+class HistoriesPagination(PageNumberPagination):
+    page_size = 10
+    page_query_param = 'histories_page'
+
 class UserCashbackDetailSerializer(serializers.ModelSerializer):
     user_full_name = serializers.SerializerMethodField()
-    histories = CashbackHistorySerializer(many=True, read_only=True)
+    histories = serializers.SerializerMethodField()  
 
     class Meta:
         model = UserCashback
@@ -370,6 +375,18 @@ class UserCashbackDetailSerializer(serializers.ModelSerializer):
     def get_user_full_name(self, obj):
         return f"{obj.user.first_name} {obj.user.last_name}"
 
+    def get_histories(self, obj):
+        request = self.context.get('request')
+        paginator = HistoriesPagination()
+        queryset = obj.histories.all().order_by('-created_at')
+        paginated_qs = paginator.paginate_queryset(queryset, request)
+        serializer = CashbackHistorySerializer(paginated_qs, many=True, context=self.context)
+        return {
+            'count': queryset.count(),
+            'next': paginator.get_next_link(),
+            'previous': paginator.get_previous_link(),
+            'results': serializer.data
+        }
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:

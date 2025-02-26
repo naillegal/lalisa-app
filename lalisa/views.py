@@ -2268,5 +2268,10 @@ class AvailableDoctorsAPIView(APIView):
 
             eligible_doctors.append(doc)
 
-        serializer = DoctorSerializer(eligible_doctors, many=True)
+        serializer = DoctorSerializer(
+            eligible_doctors,
+            many=True,
+            context={'request': request}
+        )
+
         return Response(serializer.data, status=status.HTTP_200_OK)
