@@ -487,3 +487,16 @@ class ResetPasswordSerializer(serializers.Serializer):
         if attrs['new_password'] != attrs['confirm_password']:
             raise serializers.ValidationError("Şifrələr uyğun deyil.")
         return attrs
+
+
+class ReservationTreatmentSerializer(serializers.Serializer):
+    reservation_id = serializers.IntegerField(source='id')
+    created_at = serializers.DateTimeField()
+    treatments = serializers.SerializerMethodField()
+
+    def get_treatments(self, obj):
+        treatments = Treatment.objects.filter(
+            service__in=obj.services.all()
+        ).order_by("-created_at")
+        serializer = TreatmentSerializer(treatments, many=True, context=self.context)
+        return serializer.data

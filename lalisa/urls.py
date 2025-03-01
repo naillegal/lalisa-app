@@ -151,4 +151,6 @@ urlpatterns = [
          name="reset_password"),
     path("api/available-doctors/", views.AvailableDoctorsAPIView.as_view(),
          name="available-doctors"),
+    path("api/user-treatments/", views.UserTreatmentsAPIView.as_view(),
+         name="user_treatments"),
 ]

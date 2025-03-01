@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Sum
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, status, viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -50,6 +51,7 @@ from .serializers import (
     CashbackHistorySerializer,
     ForgotPasswordSerializer,
     ResetPasswordSerializer,
+    ReservationTreatmentSerializer,
 )
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission,
                      LaserUsage, Treatment, DiscountCode, DiscountBanner,
@@ -2275,3 +2277,86 @@ class AvailableDoctorsAPIView(APIView):
         )
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserTreatmentsAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="İstifadəçinin müalicə məlumatlarını əldə et",
+        operation_description=(
+            "Bu endpoint sorğu vasitəsilə göndərilən user id əsasında, "
+            "həmin istifadəçinin bütün rezervasiyalarındakı "
+            "seçilmiş xidmətlərə aid müalicə məlumatlarını səhifələnmiş şəkildə qaytarır.\n\n"
+            "Hər səhifədə yalnız bir rezervasiyaya aid bütün xidmətlərin müalicələri göstərilir və "
+            "ən son yaradılan rezervasiya ilk səhifədə yerləşir."
+        ),
+        manual_parameters=[
+            openapi.Parameter(
+                'user_id',
+                openapi.IN_QUERY,
+                description="İstifadəçi ID",
+                type=openapi.TYPE_INTEGER,
+                required=True,
+                example=10
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description="Rezervasiyaların səhifələnmiş siyahısı və onların müalicə məlumatları.",
+                examples={
+                    "application/json": {
+                        "count": 3,
+                        "next": "http://example.com/api/user-treatments/?page=2",
+                        "previous": None,
+                        "results": [
+                            {
+                                "reservation_id": 12,
+                                "created_at": "2025-03-01T12:34:56Z",
+                                "treatments": [
+                                    {
+                                        "id": 1,
+                                        "service": 3,
+                                        "created_at": "2025-03-01T12:00:00Z",
+                                        "steps": [
+                                            {
+                                                "id": 1,
+                                                "title": "Prosesə hazırlıq",
+                                                "description": "Pasiyentin dərisinin dezinfeksiyası",
+                                                "time_offset": 10,
+                                                "created_at": "2025-03-01T12:00:00Z"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="User id göndərilməyib və ya səhv məlumat.",
+                examples={"application/json": {"detail": "User id required."}}
+            ),
+            404: openapi.Response(
+                description="Bu istifadəçiyə aid rezervasiya tapılmadı.",
+                examples={"application/json": {"detail": "No reservations found for this user."}}
+            ),
+        }
+    )
+    def get(self, request):
+        user_id = request.query_params.get("user_id")
+        if not user_id:
+            return Response({"detail": "User id required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user_id = int(user_id)
+        except ValueError:
+            return Response({"detail": "User id must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        reservations = Reservation.objects.filter(user_id=user_id).order_by("-created_at")
+        if not reservations.exists():
+            return Response({"detail": "No reservations found for this user."}, status=status.HTTP_404_NOT_FOUND)
+        
+        paginator = PageNumberPagination()
+        paginator.page_size = 1 
+        paginated_reservations = paginator.paginate_queryset(reservations, request)
+        serializer = ReservationTreatmentSerializer(paginated_reservations, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)
