@@ -17,7 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email',
+        fields = ['id', 'first_name', 'last_name', 'email',
                   'phone', 'password', 'date_of_birth', 'gender']
         extra_kwargs = {
             'gender': {'required': False, 'allow_blank': True},
@@ -363,9 +363,10 @@ class HistoriesPagination(PageNumberPagination):
     page_size = 10
     page_query_param = 'histories_page'
 
+
 class UserCashbackDetailSerializer(serializers.ModelSerializer):
     user_full_name = serializers.SerializerMethodField()
-    histories = serializers.SerializerMethodField()  
+    histories = serializers.SerializerMethodField()
 
     class Meta:
         model = UserCashback
@@ -380,13 +381,15 @@ class UserCashbackDetailSerializer(serializers.ModelSerializer):
         paginator = HistoriesPagination()
         queryset = obj.histories.all().order_by('-created_at')
         paginated_qs = paginator.paginate_queryset(queryset, request)
-        serializer = CashbackHistorySerializer(paginated_qs, many=True, context=self.context)
+        serializer = CashbackHistorySerializer(
+            paginated_qs, many=True, context=self.context)
         return {
             'count': queryset.count(),
             'next': paginator.get_next_link(),
             'previous': paginator.get_previous_link(),
             'results': serializer.data
         }
+
 
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -498,5 +501,6 @@ class ReservationTreatmentSerializer(serializers.Serializer):
         treatments = Treatment.objects.filter(
             service__in=obj.services.all()
         ).order_by("-created_at")
-        serializer = TreatmentSerializer(treatments, many=True, context=self.context)
+        serializer = TreatmentSerializer(
+            treatments, many=True, context=self.context)
         return serializer.data
