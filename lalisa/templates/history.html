@@ -49,7 +49,7 @@
   <div class="pagination-history">
     <div class="pagination-buttons">
       {% if logs.has_previous %}
-        <a href="?page={{ logs.previous_page_number }}">&laquo;</a>
+        <a href="?page={{ logs.previous_page_number }}"><button>&laquo;</button></a>
       {% else %}
         <button disabled>&laquo;</button>
       {% endif %}
@@ -63,7 +63,7 @@
       {% endfor %}
 
       {% if logs.has_next %}
-        <a href="?page={{ logs.next_page_number }}">&raquo;</a>
+        <a href="?page={{ logs.next_page_number }}"><button>&raquo;</button></a>
       {% else %}
         <button disabled>&raquo;</button>
       {% endif %}
