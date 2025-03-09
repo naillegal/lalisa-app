@@ -2451,15 +2451,18 @@ class ChangePasswordAPIView(APIView):
         responses={
             200: openapi.Response(
                 description="Şifrə uğurla dəyişdirildi.",
-                examples={"application/json": {"detail": "Şifrə uğurla dəyişdirildi."}}
+                examples={
+                    "application/json": {"detail": "Şifrə uğurla dəyişdirildi."}}
             ),
             400: openapi.Response(
                 description="Cari şifrə yanlışdır və ya digər məlumat səhvdir.",
-                examples={"application/json": {"detail": "Cari şifrə yanlışdır."}}
+                examples={
+                    "application/json": {"detail": "Cari şifrə yanlışdır."}}
             ),
             404: openapi.Response(
                 description="Bu emailə uyğun istifadəçi tapılmadı.",
-                examples={"application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}}
+                examples={
+                    "application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}}
             ),
         }
     )
@@ -2481,3 +2484,89 @@ class ChangePasswordAPIView(APIView):
         user.password = new_password
         user.save()
         return Response({"detail": "Şifrə uğurla dəyişdirildi."}, status=200)
+
+
+class CalculateDiscountPercentageAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Discount dəyərinin hesablanması",
+        operation_description=(
+            "Bu endpoint discount code və bir ədəd (value) qəbul edir. \n\n"
+            "Verilən value üzərində discount code-un discount_percentage faizini tətbiq edərək, "
+            "endirimli dəyəri hesablayır.\n\n"
+            "Məsələn, əgər discount code-un discount_percentage 10%‑dirsə və value 5‑dirsə, "
+            "hesablama: 5 - (5 * 10/100) = 4.50."
+        ),
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["code", "value"],
+            properties={
+                "code": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Discount code (məsələn: TEST10)",
+                    example="TEST10"
+                ),
+                "value": openapi.Schema(
+                    type=openapi.TYPE_NUMBER,
+                    description="Əsas dəyər (məsələn: 5)",
+                    example=5
+                )
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Yeni dəyər uğurla hesablanıb.",
+                examples={
+                    "application/json": {
+                        "detail": "Discount applied successfully.",
+                        "new_value": "4.50"
+                    }
+                }
+            ),
+            400: openapi.Response(
+                description="Yanlış məlumat və ya aktiv olmayan discount code.",
+                examples={
+                    "application/json": {
+                        "detail": "Both code and value are required."
+                    }
+                }
+            ),
+            404: openapi.Response(
+                description="Discount code tapılmadı.",
+                examples={
+                    "application/json": {
+                        "detail": "Discount code not found."
+                    }
+                }
+            ),
+        }
+    )
+    def post(self, request):
+        code = request.data.get("code")
+        value = request.data.get("value")
+        
+        if not code or value is None:
+            return Response({"detail": "Both code and value are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            provided_value = Decimal(str(value))
+        except Exception:
+            return Response({"detail": "Value must be a number."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            discount = DiscountCode.objects.get(code=code)
+        except DiscountCode.DoesNotExist:
+            return Response({"detail": "Discount code not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if not discount.is_active:
+            return Response({"detail": "Discount code is not active."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        discount_fraction = discount.discount_percent / Decimal('100')
+        new_value = provided_value - (provided_value * discount_fraction)
+        
+        if new_value < 0:
+            new_value = Decimal('0')
+        
+        return Response({
+            "detail": "Discount applied successfully.",
+            "new_value": str(new_value.quantize(Decimal('0.01')))
+        }, status=status.HTTP_200_OK)
