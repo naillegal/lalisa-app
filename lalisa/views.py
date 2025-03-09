@@ -50,8 +50,10 @@ from .serializers import (
     UserCashbackDetailSerializer,
     CashbackHistorySerializer,
     ForgotPasswordSerializer,
-    ResetPasswordSerializer,
     ReservationTreatmentSerializer,
+    VerifyOtpSerializer,
+    UpdatePasswordSerializer,
+    ChangePasswordSerializer,
 )
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission,
                      LaserUsage, Treatment, DiscountCode, DiscountBanner,
@@ -220,8 +222,8 @@ class UserLoginAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="User login",
         operation_description=(
-            "Bu endpoint user-in telefon nömrəsi və şifrəsi ilə daxil olmasına imkan verir."
-            "User aktiv deyilsə, xətalı cavab veriləcək."
+            "Bu endpoint istifadəçinin telefon nömrəsi və şifrəsi ilə"
+            "daxil olmasına imkan verir. "
         ),
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -237,6 +239,11 @@ class UserLoginAPIView(APIView):
                     description="User-in parolu",
                     example="123456"
                 ),
+                "fcm_token": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Firebase FCM token (optional)",
+                    example="fcm_token_example_ABC123"
+                ),
             }
         ),
         responses={
@@ -250,7 +257,7 @@ class UserLoginAPIView(APIView):
                 }
             ),
             400: openapi.Response(
-                description="Yanlış məlumat və ya user aktiv deyil",
+                description="Yanlış məlumat və ya istifadəçi aktiv deyil",
                 examples={
                     "application/json": {
                         "detail": "Invalid credentials"
@@ -264,12 +271,16 @@ class UserLoginAPIView(APIView):
         if serializer.is_valid():
             phone = serializer.validated_data.get('phone')
             password = serializer.validated_data.get('password')
+            fcm_token = serializer.validated_data.get('fcm_token')
             try:
                 user = User.objects.get(phone=phone, password=password)
             except User.DoesNotExist:
                 return Response({"detail": "Invalid credentials"}, status=400)
             if user.status != 'active':
                 return Response({"detail": "User is not active"}, status=400)
+            if fcm_token:
+                user.firebase_token = fcm_token
+                user.save()
             request.session['user_id'] = user.id
             return Response({"detail": "Login successful", "user_id": user.id})
         return Response(serializer.errors, status=400)
@@ -2000,89 +2011,133 @@ class ForgotPasswordAPIView(APIView):
         return Response({"detail": "OTP kod email-ə göndərildi."}, status=status.HTTP_200_OK)
 
 
-class ResetPasswordAPIView(APIView):
+class VerifyOtpAPIView(APIView):
     @swagger_auto_schema(
-        operation_summary="Yeni Şifrə Təyin Et",
-        operation_description="User, email və OTP kodu vasitəsilə yeni şifrəsini təyin edir. Şifrə və şifrə təsdiqi uyğun olmalıdır.",
+        operation_summary="OTP Təsdiqi",
+        operation_description="Bu endpoint, istifadəçinin email və OTP kodunu yoxlayır. Əgər OTP kodu düzgün olarsa, istifadəçiyə 'OTP təsdiq edildi' mesajı qaytarılır və session-da email qeyd olunur.",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["email", "otp_code", "new_password", "confirm_password"],
+            required=["email", "otp_code"],
             properties={
                 "email": openapi.Schema(
                     type=openapi.TYPE_STRING,
                     format="email",
                     description="İstifadəçinin email ünvanı",
-                    example="user@example.com"
+                    example="example@gmail.com"
                 ),
                 "otp_code": openapi.Schema(
                     type=openapi.TYPE_STRING,
-                    description="Göndərilmiş 6 rəqəmli OTP kodu",
+                    description="İstifadəçiyə göndərilmiş 6 rəqəmli OTP kodu",
                     example="123456"
-                ),
-                "new_password": openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="Yeni şifrə",
-                    example="newpass123"
-                ),
-                "confirm_password": openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="Yeni şifrənin təsdiqi",
-                    example="newpass123"
-                ),
+                )
             }
         ),
         responses={
             200: openapi.Response(
-                description="Şifrə uğurla yeniləndi",
+                description="OTP təsdiqi uğurlu oldu.",
                 examples={
                     "application/json": {
-                        "detail": "Şifrə uğurla yeniləndi."
+                        "detail": "OTP təsdiq edildi. Şifrənizi yeniləyə bilərsiniz."
                     }
                 }
             ),
             400: openapi.Response(
-                description="OTP kod yanlışdır və ya şifrələr uyğun deyil",
+                description="OTP kod səhvdir.",
                 examples={
-                    "application/json": {
-                        "otp_code": ["Bu sahə düzgün deyil."],
-                        "new_password": ["Bu sahə düzgün deyil."],
-                        "confirm_password": ["Bu sahə düzgün deyil."]
-                    }
+                    "application/json": {"detail": "OTP kod yanlışdır."}
                 }
             ),
             404: openapi.Response(
-                description="Emailə uyğun istifadəçi tapılmadı",
+                description="Emailə uyğun istifadəçi tapılmadı.",
                 examples={
-                    "application/json": {
-                        "detail": "Email yanlışdır."
-                    }
+                    "application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}
                 }
-            )
+            ),
         }
     )
     def post(self, request):
-        serializer = ResetPasswordSerializer(data=request.data)
+        serializer = VerifyOtpSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-
         email = serializer.validated_data['email']
         otp_code = serializer.validated_data['otp_code']
-        new_password = serializer.validated_data['new_password']
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({"detail": "Email yanlışdır."},
-                            status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Bu emailə uyğun istifadəçi tapılmadı."}, status=404)
 
         if user.otp_code != otp_code:
-            return Response({"detail": "OTP kod yanlışdır."},
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "OTP kod yanlışdır."}, status=400)
+
+        request.session['otp_verified_email'] = email
+
+        return Response({"detail": "OTP təsdiq edildi. Şifrənizi yeniləyə bilərsiniz."}, status=200)
+
+
+class UpdatePasswordAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Yeni Şifrə Təyin Et",
+        operation_description="Bu endpoint, OTP təsdiqi edilmiş email və yeni şifrəni qəbul edir. Əgər session-da təsdiqlənmiş email varsa, həmin istifadəçinin şifrəsi yenilənir.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email", "new_password"],
+            properties={
+                "email": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format="email",
+                    description="İstifadəçinin email ünvanı (OTP təsdiqi edilmiş email olmalıdır)",
+                    example="example@gmail.com"
+                ),
+                "new_password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Yeni şifrə",
+                    example="newpassword123"
+                )
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Şifrə uğurla yeniləndi.",
+                examples={
+                    "application/json": {"detail": "Şifrə uğurla yeniləndi."}
+                }
+            ),
+            400: openapi.Response(
+                description="OTP təsdiqi edilməyib və ya səhv məlumat.",
+                examples={
+                    "application/json": {"detail": "OTP təsdiqi edilməyib."}
+                }
+            ),
+            404: openapi.Response(
+                description="Emailə uyğun istifadəçi tapılmadı.",
+                examples={
+                    "application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}
+                }
+            ),
+        }
+    )
+    def post(self, request):
+        serializer = UpdatePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        new_password = serializer.validated_data['new_password']
+
+        verified_email = request.session.get('otp_verified_email')
+        if not verified_email or verified_email != email:
+            return Response({"detail": "OTP təsdiqi edilməyib."}, status=400)
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "Bu emailə uyğun istifadəçi tapılmadı."}, status=404)
 
         user.password = new_password
         user.otp_code = None
         user.save()
 
-        return Response({"detail": "Şifrə uğurla yeniləndi."}, status=status.HTTP_200_OK)
+        del request.session['otp_verified_email']
+
+        return Response({"detail": "Şifrə uğurla yeniləndi."}, status=200)
 
 
 class AvailableDoctorsAPIView(APIView):
@@ -2338,7 +2393,8 @@ class UserTreatmentsAPIView(APIView):
             ),
             404: openapi.Response(
                 description="Bu istifadəçiyə aid rezervasiya tapılmadı.",
-                examples={"application/json": {"detail": "No reservations found for this user."}}
+                examples={
+                    "application/json": {"detail": "No reservations found for this user."}}
             ),
         }
     )
@@ -2350,13 +2406,78 @@ class UserTreatmentsAPIView(APIView):
             user_id = int(user_id)
         except ValueError:
             return Response({"detail": "User id must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        reservations = Reservation.objects.filter(user_id=user_id).order_by("-created_at")
+
+        reservations = Reservation.objects.filter(
+            user_id=user_id).order_by("-created_at")
         if not reservations.exists():
             return Response({"detail": "No reservations found for this user."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         paginator = PageNumberPagination()
-        paginator.page_size = 1 
-        paginated_reservations = paginator.paginate_queryset(reservations, request)
-        serializer = ReservationTreatmentSerializer(paginated_reservations, many=True, context={'request': request})
+        paginator.page_size = 1
+        paginated_reservations = paginator.paginate_queryset(
+            reservations, request)
+        serializer = ReservationTreatmentSerializer(
+            paginated_reservations, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
+
+
+class ChangePasswordAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Şifrəni dəyişdir",
+        operation_description="Bu endpoint istifadəçinin email, cari şifrə və yeni şifrəsini qəbul edir. "
+                              "Əgər cari şifrə doğru göstərilərsə, həmin istifadəçinin şifrəsi yeni şifrə ilə dəyişdirilir.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email", "current_password", "new_password"],
+            properties={
+                "email": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    format="email",
+                    description="İstifadəçinin email ünvanı",
+                    example="example@gmail.com"
+                ),
+                "current_password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="İstifadəçinin cari şifrəsi",
+                    example="oldpassword123"
+                ),
+                "new_password": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="İstifadəçinin yeni şifrəsi (ən az 6 simvol)",
+                    example="newpassword123"
+                ),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Şifrə uğurla dəyişdirildi.",
+                examples={"application/json": {"detail": "Şifrə uğurla dəyişdirildi."}}
+            ),
+            400: openapi.Response(
+                description="Cari şifrə yanlışdır və ya digər məlumat səhvdir.",
+                examples={"application/json": {"detail": "Cari şifrə yanlışdır."}}
+            ),
+            404: openapi.Response(
+                description="Bu emailə uyğun istifadəçi tapılmadı.",
+                examples={"application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}}
+            ),
+        }
+    )
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        current_password = serializer.validated_data['current_password']
+        new_password = serializer.validated_data['new_password']
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"detail": "Bu emailə uyğun istifadəçi tapılmadı."}, status=404)
+
+        if user.password != current_password:
+            return Response({"detail": "Cari şifrə yanlışdır."}, status=400)
+
+        user.password = new_password
+        user.save()
+        return Response({"detail": "Şifrə uğurla dəyişdirildi."}, status=200)

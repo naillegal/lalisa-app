@@ -15,25 +15,32 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
+    fcm_token = serializers.CharField(required=False, allow_blank=True)  
+
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email',
-                  'phone', 'password', 'date_of_birth', 'gender']
+                  'phone', 'password', 'date_of_birth', 'gender', 'fcm_token']  
         extra_kwargs = {
             'gender': {'required': False, 'allow_blank': True},
         }
 
     def create(self, validated_data):
+        fcm_token = validated_data.pop('fcm_token', None)  
         validated_data['status'] = 'inactive'
         otp = str(random.randint(100000, 999999))
         validated_data['otp_code'] = otp
         user = User.objects.create(**validated_data)
+        if fcm_token:
+            user.firebase_token = fcm_token  
+            user.save()
         return user
 
 
 class UserLoginSerializer(serializers.Serializer):
     phone = serializers.CharField()
     password = serializers.CharField()
+    fcm_token = serializers.CharField(required=False, allow_blank=True)  
 
 
 class ActivateUserSerializer(serializers.Serializer):
@@ -480,16 +487,14 @@ class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
-class ResetPasswordSerializer(serializers.Serializer):
+class VerifyOtpSerializer(serializers.Serializer):
     email = serializers.EmailField()
     otp_code = serializers.CharField(max_length=6)
-    new_password = serializers.CharField(min_length=6, write_only=True)
-    confirm_password = serializers.CharField(min_length=6, write_only=True)
 
-    def validate(self, attrs):
-        if attrs['new_password'] != attrs['confirm_password']:
-            raise serializers.ValidationError("Şifrələr uyğun deyil.")
-        return attrs
+
+class UpdatePasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    new_password = serializers.CharField(min_length=6, write_only=True)
 
 
 class ReservationTreatmentSerializer(serializers.Serializer):
@@ -504,3 +509,9 @@ class ReservationTreatmentSerializer(serializers.Serializer):
         serializer = TreatmentSerializer(
             treatments, many=True, context=self.context)
         return serializer.data
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    current_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(write_only=True, min_length=6)
