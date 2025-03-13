@@ -68,7 +68,7 @@
     <div class="pagination-history">
       <div class="pagination-buttons">
         {% if history_cashbacks.has_previous %}
-          <a href="?search_history={{ search_history }}&page_history={{ history_cashbacks.previous_page_number }}&currentTab=history">&laquo;</a>
+          <a href="?search_history={{ search_history }}&page_history={{ history_cashbacks.previous_page_number }}&currentTab=history"><button>&laquo;</button></a>
         {% else %}
           <button disabled>&laquo;</button>
         {% endif %}
@@ -77,12 +77,12 @@
           {% if page_num == history_cashbacks.number %}
             <button class="active">{{ page_num }}</button>
           {% else %}
-            <a href="?search_history={{ search_history }}&page_history={{ page_num }}&currentTab=history">{{ page_num }}</a>
+            <a href="?search_history={{ search_history }}&page_history={{ page_num }}&currentTab=history"><button>{{ page_num }}</button></a>
           {% endif %}
         {% endfor %}
 
         {% if history_cashbacks.has_next %}
-          <a href="?search_history={{ search_history }}&page_history={{ history_cashbacks.next_page_number }}&currentTab=history">&raquo;</a>
+          <a href="?search_history={{ search_history }}&page_history={{ history_cashbacks.next_page_number }}&currentTab=history"><button>&raquo;</button></a>
         {% else %}
           <button disabled>&raquo;</button>
         {% endif %}
@@ -154,7 +154,7 @@
     <div class="pagination-users">
       <div class="pagination-buttons">
         {% if user_page.has_previous %}
-          <a href="?search_users={{ search_users }}&page_users={{ user_page.previous_page_number }}&currentTab=users">&laquo;</a>
+          <a href="?search_users={{ search_users }}&page_users={{ user_page.previous_page_number }}&currentTab=users"><button>&laquo;</button></a>
         {% else %}
           <button disabled>&laquo;</button>
         {% endif %}
@@ -163,12 +163,12 @@
           {% if page_num == user_page.number %}
             <button class="active">{{ page_num }}</button>
           {% else %}
-            <a href="?search_users={{ search_users }}&page_users={{ page_num }}&currentTab=users">{{ page_num }}</a>
+            <a href="?search_users={{ search_users }}&page_users={{ page_num }}&currentTab=users"><button>{{ page_num }}</button></a>
           {% endif %}
         {% endfor %}
 
         {% if user_page.has_next %}
-          <a href="?search_users={{ search_users }}&page_users={{ user_page.next_page_number }}&currentTab=users">&raquo;</a>
+          <a href="?search_users={{ search_users }}&page_users={{ user_page.next_page_number }}&currentTab=users"><button>&raquo;</button></a>
         {% else %}
           <button disabled>&raquo;</button>
         {% endif %}
@@ -238,7 +238,7 @@
     <div class="pagination-budget">
       <div class="pagination-buttons">
         {% if budget_page.has_previous %}
-          <a href="?search_budget={{ search_budget }}&page_budget={{ budget_page.previous_page_number }}&currentTab=budget">&laquo;</a>
+          <a href="?search_budget={{ search_budget }}&page_budget={{ budget_page.previous_page_number }}&currentTab=budget"><button>&laquo;</button></a>
         {% else %}
           <button disabled>&laquo;</button>
         {% endif %}
@@ -247,12 +247,12 @@
           {% if page_num == budget_page.number %}
             <button class="active">{{ page_num }}</button>
           {% else %}
-            <a href="?search_budget={{ search_budget }}&page_budget={{ page_num }}&currentTab=budget">{{ page_num }}</a>
+            <a href="?search_budget={{ search_budget }}&page_budget={{ page_num }}&currentTab=budget"><button>{{ page_num }}</button></a>
           {% endif %}
         {% endfor %}
 
         {% if budget_page.has_next %}
-          <a href="?search_budget={{ search_budget }}&page_budget={{ budget_page.next_page_number }}&currentTab=budget">&raquo;</a>
+          <a href="?search_budget={{ search_budget }}&page_budget={{ budget_page.next_page_number }}&currentTab=budget"><button>&raquo;</button></a>
         {% else %}
           <button disabled>&raquo;</button>
         {% endif %}

@@ -94,13 +94,13 @@
       {% if pending_reservations.has_other_pages %}
         <div class="pagination-buttons">
           {% if pending_reservations.has_previous %}
-            <a href="?pending_page={{ pending_reservations.previous_page_number }}">«</a>
+            <a href="?pending_page={{ pending_reservations.previous_page_number }}"><button>«</button></a>
           {% endif %}
           {% for num in pending_reservations.paginator.page_range %}
-            <a href="?pending_page={{ num }}" class="{% if pending_reservations.number == num %}active{% endif %}">{{ num }}</a>
+            <a href="?pending_page={{ num }}" class="{% if pending_reservations.number == num %}active{% endif %}"><button>{{ num }}</button></a>
           {% endfor %}
           {% if pending_reservations.has_next %}
-            <a href="?pending_page={{ pending_reservations.next_page_number }}">»</a>
+            <a href="?pending_page={{ pending_reservations.next_page_number }}"><button>»</button></a>
           {% endif %}
         </div>
       {% endif %}
@@ -173,13 +173,13 @@
       {% if accepted_reservations.has_other_pages %}
         <div class="pagination-buttons">
           {% if accepted_reservations.has_previous %}
-            <a href="?accepted_page={{ accepted_reservations.previous_page_number }}">«</a>
+            <a href="?accepted_page={{ accepted_reservations.previous_page_number }}"><button>«</button></a>
           {% endif %}
           {% for num in accepted_reservations.paginator.page_range %}
-            <a href="?accepted_page={{ num }}" class="{% if accepted_reservations.number == num %}active{% endif %}">{{ num }}</a>
+            <a href="?accepted_page={{ num }}" class="{% if accepted_reservations.number == num %}active{% endif %}"><button>{{ num }}</button></a>
           {% endfor %}
           {% if accepted_reservations.has_next %}
-            <a href="?accepted_page={{ accepted_reservations.next_page_number }}">»</a>
+            <a href="?accepted_page={{ accepted_reservations.next_page_number }}"><button>»</button></a>
           {% endif %}
         </div>
       {% endif %}

@@ -1070,10 +1070,14 @@ class UserCashbackListAPIView(generics.ListAPIView):
 
 
 class UserCashbackDetailAPIView(generics.RetrieveAPIView):
-    queryset = UserCashback.objects.all()
     serializer_class = UserCashbackDetailSerializer
     lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
+
+    def get_object(self):
+        user_id = self.kwargs.get(self.lookup_url_kwarg)
+        obj = UserCashback.objects.get_or_create(user_id=user_id)
+        return obj
 
 
 class CashbackHistoryListAPIView(generics.ListAPIView):
@@ -1912,9 +1916,56 @@ def notification_view(request):
 
 
 class NotificationListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Notification.objects.all().order_by('-id')
     serializer_class = NotificationSerializer
 
+    @swagger_auto_schema(
+        manual_parameters=[
+            openapi.Parameter(
+                'id',
+                openapi.IN_QUERY,
+                description="Bildirişlərin aid olduğu istifadəçi id-ləri, vergüllə ayrılmış. Məsələn: 1,2,3",
+                type=openapi.TYPE_STRING,
+                required=False
+            )
+        ],
+        operation_summary="Bildirişlərin siyahısı",
+        operation_description=(
+            "GET metodu: Əgər query parameter olaraq 'id' verilsə, həmin id-lərə sahib istifadəçilərin "
+            "bildirişlərini qaytarır, verilmədikdə isə bütün bildirişləri qaytarır.\n\n"
+            "POST metodu: 'user_ids' və 'message' sahələri vasitəsilə yeni bildiriş yaradır."
+        ),
+        responses={
+            200: NotificationSerializer(many=True),
+            201: NotificationSerializer(),
+            400: "Bad Request"
+        }
+    )
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["user_ids", "message"],
+            properties={
+                "user_ids": openapi.Schema(
+                    type=openapi.TYPE_ARRAY,
+                    items=openapi.Schema(type=openapi.TYPE_INTEGER),
+                    description="Bildirişin göndəriləcəyi istifadəçi id-ləri"
+                ),
+                "message": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Bildirişin mətni"
+                )
+            }
+        ),
+        responses={
+            201: NotificationSerializer(),
+            400: "Bad Request"
+        },
+        operation_summary="Yeni bildiriş yarat",
+        operation_description="Verilmiş istifadəçi id-ləri və mesaj əsasında yeni bildiriş yaradır."
+    )
     def post(self, request, *args, **kwargs):
         user_ids = request.data.get('user_ids', [])
         message = request.data.get('message', '').strip()
@@ -1927,8 +1978,7 @@ class NotificationListCreateAPIView(generics.ListCreateAPIView):
         notification_obj.recipients.set(User.objects.filter(id__in=user_ids))
 
         recipients = notification_obj.recipients.all()
-        registration_tokens = list(
-            recipients.values_list('firebase_token', flat=True))
+        registration_tokens = list(recipients.values_list('firebase_token', flat=True))
         registration_tokens = [token for token in registration_tokens if token]
 
         if registration_tokens:
@@ -1941,6 +1991,14 @@ class NotificationListCreateAPIView(generics.ListCreateAPIView):
 
         serializer = self.get_serializer(notification_obj)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def get_queryset(self):
+        queryset = Notification.objects.all().order_by('-id')
+        recipient_ids = self.request.query_params.get('id', None)
+        if recipient_ids:
+            id_list = [int(x) for x in recipient_ids.split(',') if x.strip().isdigit()]
+            queryset = queryset.filter(recipients__id__in=id_list).distinct()
+        return queryset
 
 
 @api_view(['POST'])
