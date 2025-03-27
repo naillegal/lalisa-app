@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from rest_framework.pagination import PageNumberPagination
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission, LaserUsage, Treatment,
                      TreatmentStep, DiscountCode, DiscountBanner, MainBanner, Reservation, UserCashback, CashbackHistory,
@@ -15,24 +16,28 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    fcm_token = serializers.CharField(required=False, allow_blank=True)  
+    email = serializers.EmailField(
+        validators=[UniqueValidator(
+            queryset=User.objects.all(), message="This email is already exist")]
+    )
+    fcm_token = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = User
         fields = ['id', 'first_name', 'last_name', 'email',
-                  'phone', 'password', 'date_of_birth', 'gender', 'fcm_token']  
+                  'phone', 'password', 'date_of_birth', 'gender', 'fcm_token']
         extra_kwargs = {
             'gender': {'required': False, 'allow_blank': True},
         }
 
     def create(self, validated_data):
-        fcm_token = validated_data.pop('fcm_token', None)  
+        fcm_token = validated_data.pop('fcm_token', None)
         validated_data['status'] = 'inactive'
         otp = str(random.randint(100000, 999999))
         validated_data['otp_code'] = otp
         user = User.objects.create(**validated_data)
         if fcm_token:
-            user.firebase_token = fcm_token  
+            user.firebase_token = fcm_token
             user.save()
         return user
 
@@ -40,7 +45,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     phone = serializers.CharField()
     password = serializers.CharField()
-    fcm_token = serializers.CharField(required=False, allow_blank=True)  
+    fcm_token = serializers.CharField(required=False, allow_blank=True)
 
 
 class ActivateUserSerializer(serializers.Serializer):

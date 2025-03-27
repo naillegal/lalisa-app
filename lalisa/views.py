@@ -1073,11 +1073,21 @@ class UserCashbackDetailAPIView(generics.RetrieveAPIView):
     serializer_class = UserCashbackDetailSerializer
     lookup_field = 'user_id'
     lookup_url_kwarg = 'user_id'
+    queryset = UserCashback.objects.all()
 
     def get_object(self):
         user_id = self.kwargs.get(self.lookup_url_kwarg)
-        obj = UserCashback.objects.get_or_create(user_id=user_id)
-        return obj
+        try:
+            return UserCashback.objects.get(user_id=user_id)
+        except UserCashback.DoesNotExist:
+            return None
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if obj is None:
+            return Response([], status=status.HTTP_200_OK)
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
 
 
 class CashbackHistoryListAPIView(generics.ListAPIView):
@@ -1978,7 +1988,8 @@ class NotificationListCreateAPIView(generics.ListCreateAPIView):
         notification_obj.recipients.set(User.objects.filter(id__in=user_ids))
 
         recipients = notification_obj.recipients.all()
-        registration_tokens = list(recipients.values_list('firebase_token', flat=True))
+        registration_tokens = list(
+            recipients.values_list('firebase_token', flat=True))
         registration_tokens = [token for token in registration_tokens if token]
 
         if registration_tokens:
@@ -1996,7 +2007,8 @@ class NotificationListCreateAPIView(generics.ListCreateAPIView):
         queryset = Notification.objects.all().order_by('-id')
         recipient_ids = self.request.query_params.get('id', None)
         if recipient_ids:
-            id_list = [int(x) for x in recipient_ids.split(',') if x.strip().isdigit()]
+            id_list = [int(x) for x in recipient_ids.split(',')
+                       if x.strip().isdigit()]
             queryset = queryset.filter(recipients__id__in=id_list).distinct()
         return queryset
 
@@ -2601,29 +2613,29 @@ class CalculateDiscountPercentageAPIView(APIView):
     def post(self, request):
         code = request.data.get("code")
         value = request.data.get("value")
-        
+
         if not code or value is None:
             return Response({"detail": "Both code and value are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             provided_value = Decimal(str(value))
         except Exception:
             return Response({"detail": "Value must be a number."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         try:
             discount = DiscountCode.objects.get(code=code)
         except DiscountCode.DoesNotExist:
             return Response({"detail": "Discount code not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         if not discount.is_active:
             return Response({"detail": "Discount code is not active."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         discount_fraction = discount.discount_percent / Decimal('100')
         new_value = provided_value - (provided_value * discount_fraction)
-        
+
         if new_value < 0:
             new_value = Decimal('0')
-        
+
         return Response({
             "detail": "Discount applied successfully.",
             "new_value": str(new_value.quantize(Decimal('0.01')))
