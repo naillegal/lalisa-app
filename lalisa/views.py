@@ -2480,7 +2480,7 @@ class UserTreatmentsAPIView(APIView):
         reservations = Reservation.objects.filter(
             user_id=user_id).order_by("-created_at")
         if not reservations.exists():
-            return Response({"detail": "No reservations found for this user."}, status=status.HTTP_404_NOT_FOUND)
+            reservations = Reservation.objects.none()
 
         paginator = PageNumberPagination()
         paginator.page_size = 1
