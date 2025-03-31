@@ -2643,7 +2643,6 @@ class CalculateDiscountPercentageAPIView(APIView):
 
 
 class UserReservationsAPIView(APIView):
-
     def get(self, request, user_id):
         reservations = Reservation.objects.filter(user_id=user_id).order_by('-date', '-start_time')
         

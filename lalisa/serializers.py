@@ -505,13 +505,12 @@ class UpdatePasswordSerializer(serializers.Serializer):
 
 class ReservationTreatmentSerializer(serializers.Serializer):
     reservation_id = serializers.IntegerField(source='id')
-    created_at = serializers.DateTimeField()
+    reservation_date = serializers.DateField(source='date')
     treatments = serializers.SerializerMethodField()
 
     def get_treatments(self, obj):
         treatments = Treatment.objects.filter(
-            service__in=obj.services.all()
-        ).order_by("-created_at")
+            service__in=obj.services.all()).order_by("-created_at")
         serializer = TreatmentSerializer(
             treatments, many=True, context=self.context)
         return serializer.data
