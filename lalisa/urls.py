@@ -156,5 +156,8 @@ urlpatterns = [
          name="user_treatments"),
     path("api/change_password/", views.ChangePasswordAPIView.as_view(),
          name="change_password"),
-     path("api/calculate_discount_percentage/", views.CalculateDiscountPercentageAPIView.as_view(), name="calculate_discount_percentage"),
+    path("api/calculate_discount_percentage/",
+         views.CalculateDiscountPercentageAPIView.as_view(), name="calculate_discount_percentage"),
+    path("api/users/<int:user_id>/reservations/",
+         views.UserReservationsAPIView.as_view(), name="user_reservations"),
 ]

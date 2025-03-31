@@ -2640,3 +2640,13 @@ class CalculateDiscountPercentageAPIView(APIView):
             "detail": "Discount applied successfully.",
             "new_value": str(new_value.quantize(Decimal('0.01')))
         }, status=status.HTTP_200_OK)
+
+
+class UserReservationsAPIView(APIView):
+
+    def get(self, request, user_id):
+        reservations = Reservation.objects.filter(user_id=user_id).order_by('-date', '-start_time')
+        
+        serializer = ReservationSerializer(reservations, many=True, context={'request': request})
+        
+        return Response(serializer.data)

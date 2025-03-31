@@ -308,6 +308,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             'doctor_name',
             'service_names',
             'duration_minutes',
+            'status',
         ]
 
     def get_user_name(self, obj):
