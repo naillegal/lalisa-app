@@ -54,6 +54,7 @@ from .serializers import (
     VerifyOtpSerializer,
     UpdatePasswordSerializer,
     ChangePasswordSerializer,
+    ReservationDetailSerializer,
 )
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission,
                      LaserUsage, Treatment, DiscountCode, DiscountBanner,
@@ -2646,6 +2647,9 @@ class UserReservationsAPIView(APIView):
     def get(self, request, user_id):
         reservations = Reservation.objects.filter(user_id=user_id).order_by('-date', '-start_time')
         
-        serializer = ReservationSerializer(reservations, many=True, context={'request': request})
+        paginator = PageNumberPagination()
+        paginator.page_size = 5 
+        paginated_reservations = paginator.paginate_queryset(reservations, request)
         
-        return Response(serializer.data)
+        serializer = ReservationDetailSerializer(paginated_reservations, many=True, context={'request': request})
+        return paginator.get_paginated_response(serializer.data)

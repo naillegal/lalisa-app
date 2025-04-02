@@ -520,3 +520,58 @@ class ChangePasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True, min_length=6)
+
+
+class ReservationDetailSerializer(serializers.ModelSerializer):
+    doctor = DoctorSerializer(read_only=True)
+    services = ServiceNestedSerializer(many=True, read_only=True)
+    user_name = serializers.SerializerMethodField()
+    user_full_name = serializers.SerializerMethodField()
+    user_phone = serializers.SerializerMethodField()
+    doctor_name = serializers.SerializerMethodField()
+    service_names = serializers.SerializerMethodField()
+    duration_minutes = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Reservation
+        fields = [
+            'id',
+            'user',
+            'user_full_name',  
+            'user_phone',      
+            'doctor',
+            'services',
+            'date',
+            'start_time',
+            'end_time',
+            'created_at',
+            'updated_at',
+            'user_name',
+            'doctor_name',
+            'service_names',
+            'duration_minutes',
+            'status'
+        ]
+
+    def get_user_name(self, obj):
+        if obj.user:
+            return f"{obj.user.first_name} {obj.user.last_name}"
+        return None
+
+    def get_user_full_name(self, obj):
+        if obj.user:
+            return f"{obj.user.first_name} {obj.user.last_name}"
+        return obj.full_name
+
+    def get_user_phone(self, obj):
+        if obj.user:
+            return obj.user.phone
+        return obj.phone
+
+    def get_doctor_name(self, obj):
+        if obj.doctor:
+            return f"{obj.doctor.first_name} {obj.doctor.last_name}"
+        return None
+
+    def get_service_names(self, obj):
+        return ", ".join([service.name for service in obj.services.all()])
