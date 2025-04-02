@@ -516,7 +516,7 @@ class ReservationTreatmentSerializer(serializers.Serializer):
         return serializer.data
 
 
-class ChangePasswordSerializer(serializers.Serializer):
+class ResetPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     current_password = serializers.CharField(write_only=True)
     new_password = serializers.CharField(write_only=True, min_length=6)
@@ -537,8 +537,8 @@ class ReservationDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'user',
-            'user_full_name',  
-            'user_phone',      
+            'user_full_name',
+            'user_phone',
             'doctor',
             'services',
             'date',
@@ -575,3 +575,9 @@ class ReservationDetailSerializer(serializers.ModelSerializer):
 
     def get_service_names(self, obj):
         return ", ".join([service.name for service in obj.services.all()])
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    old_password = serializers.CharField(write_only=True)
+    new_password = serializers.CharField(min_length=6, write_only=True)

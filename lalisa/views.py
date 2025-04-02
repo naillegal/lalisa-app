@@ -53,8 +53,9 @@ from .serializers import (
     ReservationTreatmentSerializer,
     VerifyOtpSerializer,
     UpdatePasswordSerializer,
-    ChangePasswordSerializer,
+    ResetPasswordSerializer,
     ReservationDetailSerializer,
+    ChangePasswordSerializer,
 )
 from .models import (User, Category, Service, Doctor, DoctorSchedule, DoctorPermission,
                      LaserUsage, Treatment, DiscountCode, DiscountBanner,
@@ -2492,7 +2493,7 @@ class UserTreatmentsAPIView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-class ChangePasswordAPIView(APIView):
+class ResetPasswordAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="Şifrəni dəyişdir",
         operation_description="Bu endpoint istifadəçinin email, cari şifrə və yeni şifrəsini qəbul edir. "
@@ -2538,7 +2539,7 @@ class ChangePasswordAPIView(APIView):
         }
     )
     def post(self, request):
-        serializer = ChangePasswordSerializer(data=request.data)
+        serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
         current_password = serializer.validated_data['current_password']
@@ -2653,3 +2654,45 @@ class UserReservationsAPIView(APIView):
         
         serializer = ReservationDetailSerializer(paginated_reservations, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
+    
+
+class ChangePasswordAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Şifrəni dəyişdir",
+        operation_description="Bu endpoint, user_id, old_password və new_password məlumatlarını qəbul edir. Əgər old_password düzgündürsə, şifrə new_password ilə yenilənir.",
+        request_body=ChangePasswordSerializer,
+        responses={
+            200: openapi.Response(
+                description="Şifrə uğurla dəyişdirildi.",
+                examples={"application/json": {"detail": "Password changed successfully."}}
+            ),
+            400: openapi.Response(
+                description="Köhnə şifrə yanlışdır.",
+                examples={"application/json": {"detail": "Old password is incorrect."}}
+            ),
+            404: openapi.Response(
+                description="İstifadəçi tapılmadı.",
+                examples={"application/json": {"detail": "User not found."}}
+            ),
+        }
+    )
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        user_id = serializer.validated_data['user_id']
+        old_password = serializer.validated_data['old_password']
+        new_password = serializer.validated_data['new_password']
+        
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        if user.password != old_password:
+            return Response({"detail": "Old password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user.password = new_password
+        user.save()
+        
+        return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
