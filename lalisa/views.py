@@ -26,6 +26,9 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.decorators import method_decorator
 import logging
+from rest_framework.exceptions import APIException
+
+logger = logging.getLogger(__name__)
 from .serializers import (
     UserSerializer,
     CategorySerializer,
@@ -205,7 +208,7 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-logger = logging.getLogger(__name__)
+
 class UserRegisterAPIView(generics.CreateAPIView):
     serializer_class = UserRegisterSerializer
     queryset = User.objects.all()
@@ -219,8 +222,8 @@ class UserRegisterAPIView(generics.CreateAPIView):
         try:
             send_mail(subject, message, from_email, recipient_list)
         except Exception as e:
-            logger.error("Error sending OTP email: %s", e)
-        return user
+            logger.exception("Error sending OTP email")
+            raise APIException("Email göndərilməsində xəta baş verdi. Zəhmət olmasa, sonra yenidən cəhd edin.")
 
 
 class UserLoginAPIView(APIView):
