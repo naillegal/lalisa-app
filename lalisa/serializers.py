@@ -20,6 +20,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         validators=[UniqueValidator(
             queryset=User.objects.all(), message="This email is already exist")]
     )
+    phone = serializers.CharField(required=False, allow_blank=True)
     fcm_token = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
@@ -28,6 +29,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
                   'phone', 'password', 'date_of_birth', 'gender', 'fcm_token']
         extra_kwargs = {
             'gender': {'required': False, 'allow_blank': True},
+            'phone': {'required': False, 'allow_blank': True},
         }
 
     def create(self, validated_data):
@@ -43,7 +45,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
 
 class UserLoginSerializer(serializers.Serializer):
-    phone = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField()
     fcm_token = serializers.CharField(required=False, allow_blank=True)
 

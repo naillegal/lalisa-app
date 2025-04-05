@@ -25,6 +25,7 @@ from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.decorators import method_decorator
+import logging
 from .serializers import (
     UserSerializer,
     CategorySerializer,
@@ -204,7 +205,7 @@ class UserRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-
+logger = logging.getLogger(__name__)
 class UserRegisterAPIView(generics.CreateAPIView):
     serializer_class = UserRegisterSerializer
     queryset = User.objects.all()
@@ -215,7 +216,11 @@ class UserRegisterAPIView(generics.CreateAPIView):
         message = f"Your OTP code is: {user.otp_code}"
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [user.email]
-        send_mail(subject, message, from_email, recipient_list)
+        try:
+            send_mail(subject, message, from_email, recipient_list)
+        except Exception as e:
+            logger.error("Error sending OTP email: %s", e)
+        return user
 
 
 class UserLoginAPIView(APIView):
@@ -224,17 +229,17 @@ class UserLoginAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="User login",
         operation_description=(
-            "Bu endpoint istifadəçinin telefon nömrəsi və şifrəsi ilə"
-            "daxil olmasına imkan verir. "
+            "Bu endpoint istifadəçinin email və şifrəsi ilə daxil olmasına imkan verir."
         ),
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["phone", "password"],
+            required=["email", "password"],
             properties={
-                "phone": openapi.Schema(
+                "email": openapi.Schema(
                     type=openapi.TYPE_STRING,
-                    description="User-in telefon nömrəsi (məsələn: +994501234567)",
-                    example="+994501234567"
+                    format=openapi.FORMAT_EMAIL,
+                    description="User-in email ünvanı",
+                    example="example@gmail.com"
                 ),
                 "password": openapi.Schema(
                     type=openapi.TYPE_STRING,
@@ -271,11 +276,11 @@ class UserLoginAPIView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            phone = serializer.validated_data.get('phone')
+            email = serializer.validated_data.get('email')
             password = serializer.validated_data.get('password')
             fcm_token = serializer.validated_data.get('fcm_token')
             try:
-                user = User.objects.get(phone=phone, password=password)
+                user = User.objects.get(email=email, password=password)
             except User.DoesNotExist:
                 return Response({"detail": "Invalid credentials"}, status=400)
             if user.status != 'active':

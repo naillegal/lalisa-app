@@ -16,7 +16,7 @@ class User(models.Model):
     email = models.EmailField(unique=True)
     date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES, blank=True, null=True)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, blank=True, null=True)
     password = models.CharField(max_length=255)
     status = models.CharField(
         max_length=8, choices=STATUS_CHOICES, default='inactive')
