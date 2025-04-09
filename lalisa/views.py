@@ -2411,10 +2411,8 @@ class UserTreatmentsAPIView(APIView):
         operation_summary="İstifadəçinin müalicə məlumatlarını əldə et",
         operation_description=(
             "Bu endpoint sorğu vasitəsilə göndərilən user id əsasında, "
-            "həmin istifadəçinin bütün rezervasiyalarındakı "
-            "seçilmiş xidmətlərə aid müalicə məlumatlarını səhifələnmiş şəkildə qaytarır.\n\n"
-            "Hər səhifədə yalnız bir rezervasiyaya aid bütün xidmətlərin müalicələri göstərilir və "
-            "ən son yaradılan rezervasiya ilk səhifədə yerləşir."
+            "ən son yaradılmış 5 rezervasiyaya aid müalicə məlumatlarını bir array içində qaytarır. "
+            "Əlavə rezervasiyalar nəzərə alınmır."
         ),
         manual_parameters=[
             openapi.Parameter(
@@ -2428,35 +2426,30 @@ class UserTreatmentsAPIView(APIView):
         ],
         responses={
             200: openapi.Response(
-                description="Rezervasiyaların səhifələnmiş siyahısı və onların müalicə məlumatları.",
+                description="Ən son 5 rezervasiyaya aid müalicə məlumatları.",
                 examples={
-                    "application/json": {
-                        "count": 3,
-                        "next": "http://example.com/api/user-treatments/?page=2",
-                        "previous": None,
-                        "results": [
-                            {
-                                "reservation_id": 12,
-                                "created_at": "2025-03-01T12:34:56Z",
-                                "treatments": [
-                                    {
-                                        "id": 1,
-                                        "service": 3,
-                                        "created_at": "2025-03-01T12:00:00Z",
-                                        "steps": [
-                                            {
-                                                "id": 1,
-                                                "title": "Prosesə hazırlıq",
-                                                "description": "Pasiyentin dərisinin dezinfeksiyası",
-                                                "time_offset": 10,
-                                                "created_at": "2025-03-01T12:00:00Z"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            }
-                        ]
-                    }
+                    "application/json": [
+                        {
+                            "reservation_id": 12,
+                            "created_at": "2025-03-01T12:34:56Z",
+                            "treatments": [
+                                {
+                                    "id": 1,
+                                    "service": 3,
+                                    "created_at": "2025-03-01T12:00:00Z",
+                                    "steps": [
+                                        {
+                                            "id": 1,
+                                            "title": "Prosesə hazırlıq",
+                                            "description": "Pasiyentin dərisinin dezinfeksiyası",
+                                            "time_offset": 10,
+                                            "created_at": "2025-03-01T12:00:00Z"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                    ]
                 }
             ),
             400: openapi.Response(
@@ -2465,8 +2458,7 @@ class UserTreatmentsAPIView(APIView):
             ),
             404: openapi.Response(
                 description="Bu istifadəçiyə aid rezervasiya tapılmadı.",
-                examples={
-                    "application/json": {"detail": "No reservations found for this user."}}
+                examples={"application/json": {"detail": "No reservations found for this user."}}
             ),
         }
     )
@@ -2479,18 +2471,13 @@ class UserTreatmentsAPIView(APIView):
         except ValueError:
             return Response({"detail": "User id must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
 
-        reservations = Reservation.objects.filter(
-            user_id=user_id).order_by("-created_at")
-        if not reservations.exists():
-            reservations = Reservation.objects.none()
+        reservations = Reservation.objects.filter(user_id=user_id).order_by("-created_at")[:5]
 
-        paginator = PageNumberPagination()
-        paginator.page_size = 1
-        paginated_reservations = paginator.paginate_queryset(
-            reservations, request)
-        serializer = ReservationTreatmentSerializer(
-            paginated_reservations, many=True, context={'request': request})
-        return paginator.get_paginated_response(serializer.data)
+        if not reservations.exists():
+            return Response([], status=status.HTTP_200_OK)
+
+        serializer = ReservationTreatmentSerializer(reservations, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ResetPasswordAPIView(APIView):
