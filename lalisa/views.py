@@ -25,10 +25,6 @@ from django.conf import settings
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from django.utils.decorators import method_decorator
-import logging
-from rest_framework.exceptions import APIException
-
-logger = logging.getLogger(__name__)
 from .serializers import (
     UserSerializer,
     CategorySerializer,
@@ -219,11 +215,7 @@ class UserRegisterAPIView(generics.CreateAPIView):
         message = f"Your OTP code is: {user.otp_code}"
         from_email = settings.DEFAULT_FROM_EMAIL
         recipient_list = [user.email]
-        try:
-            send_mail(subject, message, from_email, recipient_list)
-        except Exception as e:
-            logger.exception("Error sending OTP email")
-            raise APIException("Email göndərilməsində xəta baş verdi. Zəhmət olmasa, sonra yenidən cəhd edin.")
+        send_mail(subject, message, from_email, recipient_list)
 
 
 class UserLoginAPIView(APIView):
