@@ -26,22 +26,30 @@ document.addEventListener("DOMContentLoaded", function () {
       userRowCheckboxes.forEach((cb) => {
         if (cb.checked) {
           const tr = cb.closest("tr");
-          const userId = tr.getAttribute("data-user-id");
-          selectedUserIds.push(userId);
+          if (tr) {
+            const userId = tr.getAttribute("data-user-id");
+            if (userId) {
+              selectedUserIds.push(userId);
+            }
+          }
         }
       });
       if (selectedUserIds.length === 0) {
         alert("Heç bir istifadəçi seçilməyib!");
         return;
       }
-      notificationMain.style.display = "none";
-      notificationSend.style.display = "block";
+      if (notificationMain) {
+        notificationMain.style.display = "none";
+      }
+      if (notificationSend) {
+        notificationSend.style.display = "block";
+      }
     });
   }
 
   if (sendNotificationBtn) {
     sendNotificationBtn.addEventListener("click", function () {
-      const message = notificationMessageTextarea.value.trim();
+      const message = notificationMessageTextarea ? notificationMessageTextarea.value.trim() : "";
       if (!message) {
         alert("Mesaj mətni boş ola bilməz!");
         return;
@@ -67,11 +75,19 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then((data) => {
           alert("Bildiriş(lər) göndərildi!");
-          notificationSend.style.display = "none";
-          notificationMain.style.display = "block";
-          notificationMessageTextarea.value = "";
+          if (notificationSend) {
+            notificationSend.style.display = "none";
+          }
+          if (notificationMain) {
+            notificationMain.style.display = "block";
+          }
+          if (notificationMessageTextarea) {
+            notificationMessageTextarea.value = "";
+          }
           userRowCheckboxes.forEach((cb) => (cb.checked = false));
-          if (selectAllCheckbox) selectAllCheckbox.checked = false;
+          if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+          }
         })
         .catch((err) => {
           console.error("Error sending notifications:", err);
@@ -81,10 +97,15 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updateFilters() {
-    const gender = document.getElementById("filter-selection").value;
-    const startDate = document.getElementById("start-date").value;
-    const endDate = document.getElementById("end-date").value;
-    const searchQuery = document.getElementById("notificationSearchInput").value.trim();
+    const filterSelection = document.getElementById("filter-selection");
+    const startDate = document.getElementById("start-date");
+    const endDate = document.getElementById("end-date");
+    const searchInput = document.getElementById("notificationSearchInput");
+
+    const gender = filterSelection ? filterSelection.value : "";
+    const startDateVal = startDate ? startDate.value : "";
+    const endDateVal = endDate ? endDate.value : "";
+    const searchQuery = searchInput ? searchInput.value.trim() : "";
 
     const urlParams = new URLSearchParams(window.location.search);
 
@@ -94,14 +115,14 @@ document.addEventListener("DOMContentLoaded", function () {
       urlParams.delete("gender");
     }
 
-    if (startDate) {
-      urlParams.set("start_date", startDate);
+    if (startDateVal) {
+      urlParams.set("start_date", startDateVal);
     } else {
       urlParams.delete("start_date");
     }
 
-    if (endDate) {
-      urlParams.set("end_date", endDate);
+    if (endDateVal) {
+      urlParams.set("end_date", endDateVal);
     } else {
       urlParams.delete("end_date");
     }
