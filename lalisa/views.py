@@ -2458,7 +2458,8 @@ class UserTreatmentsAPIView(APIView):
             ),
             404: openapi.Response(
                 description="Bu istifadəçiyə aid rezervasiya tapılmadı.",
-                examples={"application/json": {"detail": "No reservations found for this user."}}
+                examples={
+                    "application/json": {"detail": "No reservations found for this user."}}
             ),
         }
     )
@@ -2471,34 +2472,30 @@ class UserTreatmentsAPIView(APIView):
         except ValueError:
             return Response({"detail": "User id must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
 
-        reservations = Reservation.objects.filter(user_id=user_id).order_by("-created_at")[:5]
+        reservations = Reservation.objects.filter(
+            user_id=user_id).order_by("-created_at")[:5]
 
         if not reservations.exists():
             return Response([], status=status.HTTP_200_OK)
 
-        serializer = ReservationTreatmentSerializer(reservations, many=True, context={'request': request})
+        serializer = ReservationTreatmentSerializer(
+            reservations, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ResetPasswordAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="Şifrəni dəyişdir",
-        operation_description="Bu endpoint istifadəçinin email, cari şifrə və yeni şifrəsini qəbul edir. "
-                              "Əgər cari şifrə doğru göstərilərsə, həmin istifadəçinin şifrəsi yeni şifrə ilə dəyişdirilir.",
+        operation_description="Bu endpoint istifadəçinin email və yeni şifrəsini qəbul edir. Həmin istifadəçinin şifrəsi yeni şifrə ilə dəyişdirilir.",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
-            required=["email", "current_password", "new_password"],
+            required=["email", "new_password"],
             properties={
                 "email": openapi.Schema(
                     type=openapi.TYPE_STRING,
                     format="email",
                     description="İstifadəçinin email ünvanı",
                     example="example@gmail.com"
-                ),
-                "current_password": openapi.Schema(
-                    type=openapi.TYPE_STRING,
-                    description="İstifadəçinin cari şifrəsi",
-                    example="oldpassword123"
                 ),
                 "new_password": openapi.Schema(
                     type=openapi.TYPE_STRING,
@@ -2511,17 +2508,14 @@ class ResetPasswordAPIView(APIView):
             200: openapi.Response(
                 description="Şifrə uğurla dəyişdirildi.",
                 examples={
-                    "application/json": {"detail": "Şifrə uğurla dəyişdirildi."}}
-            ),
-            400: openapi.Response(
-                description="Cari şifrə yanlışdır və ya digər məlumat səhvdir.",
-                examples={
-                    "application/json": {"detail": "Cari şifrə yanlışdır."}}
+                    "application/json": {"detail": "Şifrə uğurla dəyişdirildi."}
+                }
             ),
             404: openapi.Response(
                 description="Bu emailə uyğun istifadəçi tapılmadı.",
                 examples={
-                    "application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}}
+                    "application/json": {"detail": "Bu emailə uyğun istifadəçi tapılmadı."}
+                }
             ),
         }
     )
@@ -2529,20 +2523,16 @@ class ResetPasswordAPIView(APIView):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         email = serializer.validated_data['email']
-        current_password = serializer.validated_data['current_password']
         new_password = serializer.validated_data['new_password']
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            return Response({"detail": "Bu emailə uyğun istifadəçi tapılmadı."}, status=404)
-
-        if user.password != current_password:
-            return Response({"detail": "Cari şifrə yanlışdır."}, status=400)
+            return Response({"detail": "Bu emailə uyğun istifadəçi tapılmadı."}, status=status.HTTP_404_NOT_FOUND)
 
         user.password = new_password
         user.save()
-        return Response({"detail": "Şifrə uğurla dəyişdirildi."}, status=200)
+        return Response({"detail": "Şifrə uğurla dəyişdirildi."}, status=status.HTTP_200_OK)
 
 
 class CalculateDiscountPercentageAPIView(APIView):
@@ -2633,15 +2623,18 @@ class CalculateDiscountPercentageAPIView(APIView):
 
 class UserReservationsAPIView(APIView):
     def get(self, request, user_id):
-        reservations = Reservation.objects.filter(user_id=user_id).order_by('-date', '-start_time')
-        
+        reservations = Reservation.objects.filter(
+            user_id=user_id).order_by('-date', '-start_time')
+
         paginator = PageNumberPagination()
-        paginator.page_size = 5 
-        paginated_reservations = paginator.paginate_queryset(reservations, request)
-        
-        serializer = ReservationDetailSerializer(paginated_reservations, many=True, context={'request': request})
+        paginator.page_size = 5
+        paginated_reservations = paginator.paginate_queryset(
+            reservations, request)
+
+        serializer = ReservationDetailSerializer(
+            paginated_reservations, many=True, context={'request': request})
         return paginator.get_paginated_response(serializer.data)
-    
+
 
 class ChangePasswordAPIView(APIView):
     @swagger_auto_schema(
@@ -2651,11 +2644,13 @@ class ChangePasswordAPIView(APIView):
         responses={
             200: openapi.Response(
                 description="Şifrə uğurla dəyişdirildi.",
-                examples={"application/json": {"detail": "Password changed successfully."}}
+                examples={
+                    "application/json": {"detail": "Password changed successfully."}}
             ),
             400: openapi.Response(
                 description="Köhnə şifrə yanlışdır.",
-                examples={"application/json": {"detail": "Old password is incorrect."}}
+                examples={
+                    "application/json": {"detail": "Old password is incorrect."}}
             ),
             404: openapi.Response(
                 description="İstifadəçi tapılmadı.",
@@ -2666,20 +2661,20 @@ class ChangePasswordAPIView(APIView):
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        
+
         user_id = serializer.validated_data['user_id']
         old_password = serializer.validated_data['old_password']
         new_password = serializer.validated_data['new_password']
-        
+
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
         if user.password != old_password:
             return Response({"detail": "Old password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         user.password = new_password
         user.save()
-        
+
         return Response({"detail": "Password changed successfully."}, status=status.HTTP_200_OK)
