@@ -257,6 +257,8 @@ class DiscountCodeSerializer(serializers.ModelSerializer):
 
 class DiscountBannerSerializer(serializers.ModelSerializer):
     service_name = serializers.ReadOnlyField(source='service.name')
+    service_category = serializers.IntegerField(
+        source='service.category.id', read_only=True)
 
     class Meta:
         model = DiscountBanner
@@ -274,6 +276,8 @@ class DiscountBannerSerializer(serializers.ModelSerializer):
 
 class MainBannerSerializer(serializers.ModelSerializer):
     service_name = serializers.ReadOnlyField(source='service.name')
+    service_category = serializers.IntegerField(
+        source='service.category.id', read_only=True)
 
     class Meta:
         model = MainBanner
