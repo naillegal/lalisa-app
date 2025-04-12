@@ -266,6 +266,7 @@ class DiscountBannerSerializer(serializers.ModelSerializer):
             'discount_percent',
             'service',
             'service_name',
+            'service_category',
             'image',
             'created_at',
         ]
@@ -281,6 +282,7 @@ class MainBannerSerializer(serializers.ModelSerializer):
             'text',
             'service',
             'service_name',
+            'service_category',
             'image',
             'created_at',
         ]
