@@ -1980,25 +1980,27 @@ class NotificationListCreateAPIView(generics.ListCreateAPIView):
     )
     def post(self, request, *args, **kwargs):
         user_ids = request.data.get('user_ids', [])
-        message = request.data.get('message', '').strip()
-        if not user_ids or not message:
+        message_text = request.data.get('message', '').strip()
+        if not user_ids or not message_text:
             return Response(
                 {"detail": "user_ids və message sahələri zəruridir."},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        notification_obj = Notification.objects.create(message=message)
+
+        notification_obj = Notification.objects.create(message=message_text)
         notification_obj.recipients.set(User.objects.filter(id__in=user_ids))
 
-        recipients = notification_obj.recipients.all()
-        registration_tokens = list(
-            recipients.values_list('firebase_token', flat=True))
-        registration_tokens = [token for token in registration_tokens if token]
+        tokens = list(
+            notification_obj.recipients
+                            .exclude(firebase_token__isnull=True)
+                            .values_list('firebase_token', flat=True)
+        )
 
-        if registration_tokens:
-            push_response = send_push_notification(
-                registration_tokens,
+        if tokens:
+            send_push_notification(
+                tokens,
                 title="Yeni bildiriş",
-                body=message,
+                body=message_text,
                 data_message={"notification_id": str(notification_obj.id)}
             )
 
